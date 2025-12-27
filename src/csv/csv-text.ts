@@ -1,6 +1,5 @@
-import {wrapString} from '@augment-vir/common';
+import {trimLines, wrapString} from '@augment-vir/common';
 import {csvParseRows} from 'd3-dsv';
-import {trimLines} from '../augments/trim-lines.js';
 
 /**
  * Converts multiple rows of values into a CSV file string.

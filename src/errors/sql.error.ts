@@ -1,5 +1,4 @@
-import {addSuffix, extractErrorMessage, indent} from '@augment-vir/common';
-import {trimLines} from '../augments/trim-lines.js';
+import {addSuffix, extractErrorMessage, indent, trimLines} from '@augment-vir/common';
 import {type Sql} from '../sql/sql.js';
 import {CsvSqlEngineError} from './csv-sql-engine.error.js';
 

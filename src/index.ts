@@ -1,4 +1,3 @@
-export * from './augments/trim-lines.js';
 export * from './csv/csv-file.js';
 export * from './csv/csv-text.js';
 export * from './engine/define-ast-handler.js';
