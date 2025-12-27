@@ -3,7 +3,7 @@ import {awaitedBlockingMap} from '@augment-vir/common';
 import {nameCsvTableFile, readCsvFile, readCsvHeaders, writeCsvFile} from '../../csv/csv-file.js';
 import {AstType} from '../../sql/ast.js';
 import {type AstHandlerResult, defineAstHandler} from '../define-ast-handler.js';
-import {sortValues} from '../sort-values.js';
+import {sortValues, type SortValuesOutput} from '../sort-values.js';
 import {findWhereMatches} from '../where-matcher.js';
 
 /**
@@ -19,7 +19,7 @@ export const rowDeleteHandler = defineAstHandler({
 
             const results = await awaitedBlockingMap(
                 tableNames,
-                async (tableName): Promise<AstHandlerResult | undefined> => {
+                async (tableName): Promise<AstHandlerResult> => {
                     const {tableFilePath, sanitizedTableName} = nameCsvTableFile({
                         csvDirPath,
                         tableName,
@@ -39,7 +39,7 @@ export const rowDeleteHandler = defineAstHandler({
 
                     const returningRequirement = ast.returning;
 
-                    const result = returningRequirement
+                    const result: SortValuesOutput = returningRequirement
                         ? sortValues({
                               csvFileHeaderOrder: csvHeaders,
                               sqlQueryHeaderOrder: returningRequirement.columns.map(
@@ -52,7 +52,10 @@ export const rowDeleteHandler = defineAstHandler({
                               },
                               unconsumedInterpolationValues: sql.unconsumedValues,
                           })
-                        : undefined;
+                        : {
+                              columnNames: [],
+                              values: [],
+                          };
 
                     rowIndexesToDelete.forEach((rowIndexToDelete) => {
                         csvContents.splice(rowIndexToDelete, 1);
@@ -60,7 +63,10 @@ export const rowDeleteHandler = defineAstHandler({
 
                     await writeCsvFile(tableFilePath, csvContents);
 
-                    return result;
+                    return {
+                        ...result,
+                        numberOfRowsAffected: rowIndexesToDelete.length,
+                    };
                 },
             );
 

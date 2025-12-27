@@ -3,7 +3,7 @@ import {awaitedBlockingMap} from '@augment-vir/common';
 import {appendCsvRow, nameCsvTableFile, readCsvHeaders} from '../../csv/csv-file.js';
 import {AstType} from '../../sql/ast.js';
 import {type AstHandlerResult, defineAstHandler} from '../define-ast-handler.js';
-import {sortValues} from '../sort-values.js';
+import {sortValues, type SortValuesOutput} from '../sort-values.js';
 
 /**
  * Handles inserting rows.
@@ -47,22 +47,26 @@ export const rowInsertHandler = defineAstHandler({
 
                     await appendCsvRow(newRow, tableFilePath);
 
-                    if (ast.returning) {
-                        const sqlHeaders = ast.returning.columns.map(
-                            (column) => column.expr.column,
-                        );
+                    const readResult: SortValuesOutput = ast.returning
+                        ? sortValues({
+                              csvFileHeaderOrder,
+                              sqlQueryHeaderOrder: ast.returning.columns.map(
+                                  (column) => column.expr.column,
+                              ),
+                              from: {
+                                  csvFile: [newRow],
+                              },
+                              unconsumedInterpolationValues: undefined,
+                          })
+                        : {
+                              columnNames: [],
+                              values: [],
+                          };
 
-                        return sortValues({
-                            csvFileHeaderOrder,
-                            sqlQueryHeaderOrder: sqlHeaders,
-                            from: {
-                                csvFile: [newRow],
-                            },
-                            unconsumedInterpolationValues: undefined,
-                        });
-                    } else {
-                        return undefined;
-                    }
+                    return {
+                        ...readResult,
+                        numberOfRowsAffected: 1,
+                    };
                 },
             );
 

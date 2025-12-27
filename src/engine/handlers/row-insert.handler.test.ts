@@ -30,7 +30,13 @@ describe(rowInsertHandler.name, () => {
                     },
                 },
                 output: [
-                    [],
+                    [
+                        {
+                            columnNames: [],
+                            values: [],
+                            numberOfRowsAffected: 1,
+                        },
+                    ],
                 ],
             },
         },
@@ -61,8 +67,20 @@ describe(rowInsertHandler.name, () => {
                     },
                 },
                 output: [
-                    [],
-                    [],
+                    [
+                        {
+                            columnNames: [],
+                            values: [],
+                            numberOfRowsAffected: 1,
+                        },
+                    ],
+                    [
+                        {
+                            columnNames: [],
+                            values: [],
+                            numberOfRowsAffected: 1,
+                        },
+                    ],
                 ],
             },
         },
@@ -97,8 +115,20 @@ describe(rowInsertHandler.name, () => {
                     },
                 },
                 output: [
-                    [],
-                    [],
+                    [
+                        {
+                            columnNames: [],
+                            values: [],
+                            numberOfRowsAffected: 1,
+                        },
+                    ],
+                    [
+                        {
+                            columnNames: [],
+                            values: [],
+                            numberOfRowsAffected: 1,
+                        },
+                    ],
                 ],
             },
         },
@@ -127,7 +157,13 @@ describe(rowInsertHandler.name, () => {
                     },
                 },
                 output: [
-                    [],
+                    [
+                        {
+                            columnNames: [],
+                            values: [],
+                            numberOfRowsAffected: 1,
+                        },
+                    ],
                 ],
             },
         },
@@ -156,7 +192,13 @@ describe(rowInsertHandler.name, () => {
                     },
                 },
                 output: [
-                    [],
+                    [
+                        {
+                            columnNames: [],
+                            values: [],
+                            numberOfRowsAffected: 1,
+                        },
+                    ],
                 ],
             },
         },
@@ -189,6 +231,7 @@ describe(rowInsertHandler.name, () => {
                 output: [
                     [
                         {
+                            numberOfRowsAffected: 1,
                             columnNames: [
                                 'id',
                                 'name',
@@ -205,6 +248,7 @@ describe(rowInsertHandler.name, () => {
                     ],
                     [
                         {
+                            numberOfRowsAffected: 1,
                             columnNames: [
                                 'name',
                                 'id',

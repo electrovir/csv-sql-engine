@@ -40,7 +40,13 @@ describe(rowDeleteHandler.name, () => {
                     },
                 },
                 output: [
-                    [],
+                    [
+                        {
+                            columnNames: [],
+                            values: [],
+                            numberOfRowsAffected: 1,
+                        },
+                    ],
                 ],
             },
         },
@@ -78,7 +84,13 @@ describe(rowDeleteHandler.name, () => {
                     },
                 },
                 output: [
-                    [],
+                    [
+                        {
+                            numberOfRowsAffected: 2,
+                            columnNames: [],
+                            values: [],
+                        },
+                    ],
                 ],
             },
         },
@@ -118,6 +130,7 @@ describe(rowDeleteHandler.name, () => {
                 output: [
                     [
                         {
+                            numberOfRowsAffected: 2,
                             columnNames: [
                                 'id',
                             ],

@@ -2,6 +2,16 @@ import {type RequireExactlyOne} from 'type-fest';
 import {type ConsumableValue} from '../sql/sql.js';
 
 /**
+ * Output from {@link sortValues}.
+ *
+ * @category Internal
+ */
+export type SortValuesOutput = {
+    values: string[][];
+    columnNames: string[];
+};
+
+/**
  * Sorts values for CSV insertion or reading and handle interpolated values.
  *
  * @category Internal
@@ -21,7 +31,7 @@ export function sortValues({
         sqlQuery: ReadonlyArray<ReadonlyArray<string>>;
     }>;
     unconsumedInterpolationValues: undefined | ConsumableValue[];
-}>): {values: string[][]; columnNames: string[]} {
+}>): SortValuesOutput {
     const fromOrder = from.sqlQuery ? sqlQueryHeaderOrder : csvFileHeaderOrder;
     const toOrder = (from.sqlQuery ? csvFileHeaderOrder : sqlQueryHeaderOrder).flatMap((header) => {
         if (header === '*') {

@@ -1,14 +1,14 @@
 import {type MaybePromise} from '@augment-vir/common';
 import {type AstHandlerParams} from './params.js';
+import {type SortValuesOutput} from './sort-values.js';
 
 /**
  * Output from a handler that handled a SQL query.
  *
  * @category Internal
  */
-export type AstHandlerResult = {
-    columnNames: string[];
-    values: string[][];
+export type AstHandlerResult = SortValuesOutput & {
+    numberOfRowsAffected: number;
 };
 
 /**

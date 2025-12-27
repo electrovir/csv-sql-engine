@@ -41,7 +41,13 @@ describe(rowUpdateHandler.name, () => {
                     },
                 },
                 output: [
-                    [],
+                    [
+                        {
+                            columnNames: [],
+                            values: [],
+                            numberOfRowsAffected: 1,
+                        },
+                    ],
                 ],
             },
         },
@@ -83,6 +89,7 @@ describe(rowUpdateHandler.name, () => {
                 output: [
                     [
                         {
+                            numberOfRowsAffected: 1,
                             columnNames: [
                                 'id',
                                 'name',

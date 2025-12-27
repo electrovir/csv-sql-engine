@@ -39,16 +39,19 @@ export const rowSelectHandler = defineAstHandler({
 
                     const columnNames = ast.columns.map((column) => column.expr.column);
 
-                    return sortValues({
-                        csvFileHeaderOrder: csvHeaders,
-                        sqlQueryHeaderOrder: columnNames,
-                        from: {
-                            csvFile: csvContents.filter((row, index) =>
-                                rowIndexesToSelect.includes(index),
-                            ),
-                        },
-                        unconsumedInterpolationValues: sql.unconsumedValues,
-                    });
+                    return {
+                        ...sortValues({
+                            csvFileHeaderOrder: csvHeaders,
+                            sqlQueryHeaderOrder: columnNames,
+                            from: {
+                                csvFile: csvContents.filter((row, index) =>
+                                    rowIndexesToSelect.includes(index),
+                                ),
+                            },
+                            unconsumedInterpolationValues: sql.unconsumedValues,
+                        }),
+                        numberOfRowsAffected: 0,
+                    };
                 },
             );
 

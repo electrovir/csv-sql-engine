@@ -43,6 +43,7 @@ describe(rowSelectHandler.name, () => {
                 output: [
                     [
                         {
+                            numberOfRowsAffected: 0,
                             columnNames: [
                                 'name',
                                 'id',
@@ -94,7 +95,16 @@ describe(rowSelectHandler.name, () => {
                     },
                 },
                 output: [
-                    [],
+                    [
+                        {
+                            columnNames: [
+                                'name',
+                                'id',
+                            ],
+                            values: [],
+                            numberOfRowsAffected: 0,
+                        },
+                    ],
                 ],
             },
         },
@@ -136,6 +146,7 @@ describe(rowSelectHandler.name, () => {
                 output: [
                     [
                         {
+                            numberOfRowsAffected: 0,
                             columnNames: [
                                 'id',
                                 'email',

@@ -64,7 +64,7 @@ async function executeIndividualCommand(
         for (const handler of allAstHandlers) {
             const output = await handler.handler(params);
             if (output) {
-                return output.filter((entry) => entry.values.length);
+                return output;
             }
         }
 

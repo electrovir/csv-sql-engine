@@ -10,7 +10,7 @@ import {
 import {CsvColumnDoesNotExistError} from '../../errors/csv.error.js';
 import {AstType} from '../../sql/ast.js';
 import {type AstHandlerResult, defineAstHandler} from '../define-ast-handler.js';
-import {sortValues} from '../sort-values.js';
+import {sortValues, type SortValuesOutput} from '../sort-values.js';
 import {findWhereMatches} from '../where-matcher.js';
 
 /**
@@ -71,7 +71,7 @@ export const rowUpdateHandler = defineAstHandler({
                     const sqlHeaders =
                         returningRequirement?.columns.map((column) => column.expr.column) || [];
 
-                    const result = returningRequirement
+                    const result: SortValuesOutput = returningRequirement
                         ? sortValues({
                               csvFileHeaderOrder: csvHeaders,
                               sqlQueryHeaderOrder: sqlHeaders,
@@ -82,11 +82,17 @@ export const rowUpdateHandler = defineAstHandler({
                               },
                               unconsumedInterpolationValues: sql.unconsumedValues,
                           })
-                        : undefined;
+                        : {
+                              columnNames: [],
+                              values: [],
+                          };
 
                     await writeCsvFile(tableFilePath, csvContents);
 
-                    return result;
+                    return {
+                        ...result,
+                        numberOfRowsAffected: rowIndexesToUpdate.length,
+                    };
                 },
             );
 
