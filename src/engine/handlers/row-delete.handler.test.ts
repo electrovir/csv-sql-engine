@@ -117,12 +117,19 @@ describe(rowDeleteHandler.name, () => {
                 },
                 output: [
                     [
-                        [
-                            '2',
-                        ],
-                        [
-                            '4',
-                        ],
+                        {
+                            columnNames: [
+                                'id',
+                            ],
+                            values: [
+                                [
+                                    '2',
+                                ],
+                                [
+                                    '4',
+                                ],
+                            ],
+                        },
                     ],
                 ],
             },

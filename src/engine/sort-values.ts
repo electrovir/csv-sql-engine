@@ -16,12 +16,12 @@ export function sortValues({
     sqlQueryHeaderOrder: ReadonlyArray<string>;
     from: RequireExactlyOne<{
         /** When a CSV value array is provided, they are sorted to the SQL header order. */
-        csvFile: ReadonlyArray<string>;
+        csvFile: ReadonlyArray<ReadonlyArray<string>>;
         /** When a SQL value array is provided, they are sorted to the CSV header order. */
-        sqlQuery: ReadonlyArray<string>;
+        sqlQuery: ReadonlyArray<ReadonlyArray<string>>;
     }>;
     unconsumedInterpolationValues: undefined | ConsumableValue[];
-}>): string[] {
+}>): {values: string[][]; columnNames: string[]} {
     const fromOrder = from.sqlQuery ? sqlQueryHeaderOrder : csvFileHeaderOrder;
     const toOrder = (from.sqlQuery ? csvFileHeaderOrder : sqlQueryHeaderOrder).flatMap((header) => {
         if (header === '*') {
@@ -30,26 +30,33 @@ export function sortValues({
             return header;
         }
     });
-    const values: ReadonlyArray<string> = (from.csvFile || from.sqlQuery).map((value) => {
-        if (value === '?') {
-            if (unconsumedInterpolationValues) {
-                if (unconsumedInterpolationValues.length) {
-                    return unconsumedInterpolationValues.shift() || '';
+    const values: string[][] = (from.csvFile || from.sqlQuery).map((valueRow) => {
+        const mappedValueRow = valueRow.map((value) => {
+            if (value === '?') {
+                if (unconsumedInterpolationValues) {
+                    if (unconsumedInterpolationValues.length) {
+                        return unconsumedInterpolationValues.shift() || '';
+                    } else {
+                        throw new Error(
+                            'Encountered ? but all interpolation values have already been used.',
+                        );
+                    }
                 } else {
-                    throw new Error(
-                        'Encountered ? but all interpolation values have already been used.',
-                    );
+                    throw new Error('Encountered ? but received no interpolation values.');
                 }
             } else {
-                throw new Error('Encountered ? but received no interpolation values.');
+                return value;
             }
-        } else {
-            return value;
-        }
+        });
+
+        return toOrder.map((header) => {
+            const sourceIndex = fromOrder.indexOf(header);
+            return mappedValueRow[sourceIndex] ?? '';
+        });
     });
 
-    return toOrder.map((header) => {
-        const sourceIndex = fromOrder.indexOf(header);
-        return values[sourceIndex] ?? '';
-    });
+    return {
+        columnNames: toOrder,
+        values,
+    };
 }

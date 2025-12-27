@@ -6,7 +6,10 @@ import {type AstHandlerParams} from './params.js';
  *
  * @category Internal
  */
-export type AstHandlerResult = string[][];
+export type AstHandlerResult = {
+    columnNames: string[];
+    values: string[][];
+};
 
 /**
  * An AST / SQL handler.
@@ -19,7 +22,7 @@ export type AstHandler = {
      * Return `undefined` to mark this AST as not-handled. That means that other handlers should be
      * used instead.
      */
-    handler: (params: Readonly<AstHandlerParams>) => MaybePromise<AstHandlerResult | undefined>;
+    handler: (params: Readonly<AstHandlerParams>) => MaybePromise<AstHandlerResult[] | undefined>;
 };
 
 /**

@@ -28,18 +28,29 @@ describe(sortValues.name, () => {
                 ],
                 from: {
                     sqlQuery: [
-                        '?',
-                        '?',
-                        '?',
+                        [
+                            '?',
+                            '?',
+                            '?',
+                        ],
                     ],
                 },
                 unconsumedInterpolationValues,
             }),
-            [
-                '1',
-                'example1',
-                'example1@example.com',
-            ],
+            {
+                columnNames: [
+                    'id',
+                    'name',
+                    'email',
+                ],
+                values: [
+                    [
+                        '1',
+                        'example1',
+                        'example1@example.com',
+                    ],
+                ],
+            },
         );
         assert.deepEquals(
             sortValues({
@@ -55,18 +66,29 @@ describe(sortValues.name, () => {
                 ],
                 from: {
                     sqlQuery: [
-                        '?',
-                        '?',
-                        '?',
+                        [
+                            '?',
+                            '?',
+                            '?',
+                        ],
                     ],
                 },
                 unconsumedInterpolationValues,
             }),
-            [
-                '2',
-                'example2',
-                'example2@example.com',
-            ],
+            {
+                columnNames: [
+                    'id',
+                    'name',
+                    'email',
+                ],
+                values: [
+                    [
+                        '2',
+                        'example2',
+                        'example2@example.com',
+                    ],
+                ],
+            },
         );
     });
 
@@ -86,18 +108,29 @@ describe(sortValues.name, () => {
                 ],
                 from: {
                     sqlQuery: [
-                        'example',
-                        '2',
-                        'example@example.com',
+                        [
+                            'example',
+                            '2',
+                            'example@example.com',
+                        ],
                     ],
                 },
                 unconsumedInterpolationValues: [],
             },
-            expect: [
-                '2',
-                'example',
-                'example@example.com',
-            ],
+            expect: {
+                columnNames: [
+                    'id',
+                    'name',
+                    'email',
+                ],
+                values: [
+                    [
+                        '2',
+                        'example',
+                        'example@example.com',
+                    ],
+                ],
+            },
         },
         {
             it: 'handles *',
@@ -115,21 +148,35 @@ describe(sortValues.name, () => {
                 ],
                 from: {
                     csvFile: [
-                        '2',
-                        'example',
-                        'example@example.com',
+                        [
+                            '2',
+                            'example',
+                            'example@example.com',
+                        ],
                     ],
                 },
                 unconsumedInterpolationValues: [],
             },
-            expect: [
-                '2',
-                'example',
-                'example@example.com',
-                'example',
-                '2',
-                'example@example.com',
-            ],
+            expect: {
+                columnNames: [
+                    'id',
+                    'name',
+                    'email',
+                    'name',
+                    'id',
+                    'email',
+                ],
+                values: [
+                    [
+                        '2',
+                        'example',
+                        'example@example.com',
+                        'example',
+                        '2',
+                        'example@example.com',
+                    ],
+                ],
+            },
         },
         {
             it: 'sorts to sql order',
@@ -146,18 +193,29 @@ describe(sortValues.name, () => {
                 ],
                 from: {
                     csvFile: [
-                        '2',
-                        'example',
-                        'example@example.com',
+                        [
+                            '2',
+                            'example',
+                            'example@example.com',
+                        ],
                     ],
                 },
                 unconsumedInterpolationValues: [],
             },
-            expect: [
-                'example',
-                '2',
-                'example@example.com',
-            ],
+            expect: {
+                columnNames: [
+                    'name',
+                    'id',
+                    'email',
+                ],
+                values: [
+                    [
+                        'example',
+                        '2',
+                        'example@example.com',
+                    ],
+                ],
+            },
         },
     ]);
 });

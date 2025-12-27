@@ -30,7 +30,7 @@ export type AstHandlerTestCase = {
     sql: Readonly<Sql>;
 } & RequireExactlyOne<{
     expect: {
-        output: AstHandlerResult[];
+        output: AstHandlerResult[][];
         files: {
             before: SplitFileContents;
             after: SplitFileContents;

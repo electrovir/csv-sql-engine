@@ -42,10 +42,18 @@ describe(rowSelectHandler.name, () => {
                 },
                 output: [
                     [
-                        [
-                            'example2',
-                            '2',
-                        ],
+                        {
+                            columnNames: [
+                                'name',
+                                'id',
+                            ],
+                            values: [
+                                [
+                                    'example2',
+                                    '2',
+                                ],
+                            ],
+                        },
                     ],
                 ],
             },
@@ -127,11 +135,20 @@ describe(rowSelectHandler.name, () => {
                 },
                 output: [
                     [
-                        [
-                            '2',
-                            'example2@example.com',
-                            'example2',
-                        ],
+                        {
+                            columnNames: [
+                                'id',
+                                'email',
+                                'name',
+                            ],
+                            values: [
+                                [
+                                    '2',
+                                    'example2@example.com',
+                                    'example2',
+                                ],
+                            ],
+                        },
                     ],
                 ],
             },

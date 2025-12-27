@@ -82,10 +82,18 @@ describe(rowUpdateHandler.name, () => {
                 },
                 output: [
                     [
-                        [
-                            '2',
-                            'new2',
-                        ],
+                        {
+                            columnNames: [
+                                'id',
+                                'name',
+                            ],
+                            values: [
+                                [
+                                    '2',
+                                    'new2',
+                                ],
+                            ],
+                        },
                     ],
                 ],
             },

@@ -38,7 +38,7 @@ export const allAstHandlers: ReadonlyArray<Readonly<AstHandler>> = [
 export async function executeSql(
     sqlInput: Sql | string,
     params: Readonly<ExecuteSqlParams>,
-): Promise<AstHandlerResult[]> {
+): Promise<AstHandlerResult[][]> {
     // eslint-disable-next-line @typescript-eslint/no-deprecated
     const sql = check.isString(sqlInput) ? rawSql(sqlInput) : sqlInput;
 
@@ -59,12 +59,12 @@ export async function executeSql(
 
 async function executeIndividualCommand(
     params: Readonly<AstHandlerParams>,
-): Promise<AstHandlerResult> {
+): Promise<AstHandlerResult[]> {
     try {
         for (const handler of allAstHandlers) {
             const output = await handler.handler(params);
             if (output) {
-                return output;
+                return output.filter((entry) => entry.values.length);
             }
         }
 

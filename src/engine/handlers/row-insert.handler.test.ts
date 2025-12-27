@@ -188,17 +188,34 @@ describe(rowInsertHandler.name, () => {
                 },
                 output: [
                     [
-                        [
-                            '2',
-                            'example',
-                            'example@example.com',
-                        ],
+                        {
+                            columnNames: [
+                                'id',
+                                'name',
+                                'email',
+                            ],
+                            values: [
+                                [
+                                    '2',
+                                    'example',
+                                    'example@example.com',
+                                ],
+                            ],
+                        },
                     ],
                     [
-                        [
-                            'example',
-                            '3',
-                        ],
+                        {
+                            columnNames: [
+                                'name',
+                                'id',
+                            ],
+                            values: [
+                                [
+                                    'example',
+                                    '3',
+                                ],
+                            ],
+                        },
                     ],
                 ],
             },

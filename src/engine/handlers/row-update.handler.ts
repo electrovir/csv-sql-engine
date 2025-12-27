@@ -9,7 +9,7 @@ import {
 } from '../../csv/csv-file.js';
 import {CsvColumnDoesNotExistError} from '../../errors/csv.error.js';
 import {AstType} from '../../sql/ast.js';
-import {defineAstHandler} from '../define-ast-handler.js';
+import {type AstHandlerResult, defineAstHandler} from '../define-ast-handler.js';
 import {sortValues} from '../sort-values.js';
 import {findWhereMatches} from '../where-matcher.js';
 
@@ -24,64 +24,73 @@ export const rowUpdateHandler = defineAstHandler({
         if (ast.type === AstType.Update) {
             const tableNames = ast.table.map((table) => table.table);
 
-            const returning = await awaitedBlockingMap(tableNames, async (tableName) => {
-                const {tableFilePath, sanitizedTableName} = nameCsvTableFile({
-                    csvDirPath,
-                    tableName,
-                });
+            const results = await awaitedBlockingMap(
+                tableNames,
+                async (tableName): Promise<AstHandlerResult | undefined> => {
+                    const {tableFilePath, sanitizedTableName} = nameCsvTableFile({
+                        csvDirPath,
+                        tableName,
+                    });
 
-                const csvContents = await readCsvFile(tableFilePath);
-                const csvHeaders = await readCsvHeaders({
-                    csvContents,
-                    sanitizedTableName,
-                });
-                const csvHeaderIndexes = createCsvHeaderMaps(csvHeaders);
+                    const csvContents = await readCsvFile(tableFilePath);
+                    const csvHeaders = await readCsvHeaders({
+                        csvContents,
+                        sanitizedTableName,
+                    });
+                    const csvHeaderIndexes = createCsvHeaderMaps(csvHeaders);
 
-                const rowIndexesToUpdate = findWhereMatches(ast.where, csvContents, tableFilePath);
-
-                const returningRequirement = ast.returning;
-
-                rowIndexesToUpdate.forEach((rowIndexToUpdate) => {
-                    const row = assertWrap.isDefined(
-                        csvContents[rowIndexToUpdate],
-                        `Invalid row index '${rowIndexToUpdate}'.`,
+                    const rowIndexesToUpdate = findWhereMatches(
+                        ast.where,
+                        csvContents,
+                        tableFilePath,
                     );
 
-                    ast.set.forEach((set) => {
-                        const columnName = set.column;
+                    const returningRequirement = ast.returning;
 
-                        const headerIndex = csvHeaderIndexes.byName[columnName];
-                        if (!headerIndex) {
-                            throw new CsvColumnDoesNotExistError(sanitizedTableName, columnName);
-                        }
+                    rowIndexesToUpdate.forEach((rowIndexToUpdate) => {
+                        const row = assertWrap.isDefined(
+                            csvContents[rowIndexToUpdate],
+                            `Invalid row index '${rowIndexToUpdate}'.`,
+                        );
 
-                        row[headerIndex] = set.value.value;
+                        ast.set.forEach((set) => {
+                            const columnName = set.column;
+
+                            const headerIndex = csvHeaderIndexes.byName[columnName];
+                            if (!headerIndex) {
+                                throw new CsvColumnDoesNotExistError(
+                                    sanitizedTableName,
+                                    columnName,
+                                );
+                            }
+
+                            row[headerIndex] = set.value.value;
+                        });
                     });
-                });
 
-                const updatedRow = returningRequirement
-                    ? csvContents
-                          .filter((row, index) => rowIndexesToUpdate.includes(index))
-                          .map((row) =>
-                              sortValues({
-                                  csvFileHeaderOrder: csvHeaders,
-                                  sqlQueryHeaderOrder: returningRequirement.columns.map(
-                                      (column) => column.expr.column,
+                    const sqlHeaders =
+                        returningRequirement?.columns.map((column) => column.expr.column) || [];
+
+                    const result = returningRequirement
+                        ? sortValues({
+                              csvFileHeaderOrder: csvHeaders,
+                              sqlQueryHeaderOrder: sqlHeaders,
+                              from: {
+                                  csvFile: csvContents.filter((row, index) =>
+                                      rowIndexesToUpdate.includes(index),
                                   ),
-                                  from: {
-                                      csvFile: row,
-                                  },
-                                  unconsumedInterpolationValues: sql.unconsumedValues,
-                              }),
-                          )
-                    : undefined;
+                              },
+                              unconsumedInterpolationValues: sql.unconsumedValues,
+                          })
+                        : undefined;
 
-                await writeCsvFile(tableFilePath, csvContents);
+                    await writeCsvFile(tableFilePath, csvContents);
 
-                return updatedRow;
-            });
+                    return result;
+                },
+            );
 
-            return returning.flat().filter(check.isTruthy);
+            return results.flat().filter(check.isTruthy);
         }
 
         return undefined;
