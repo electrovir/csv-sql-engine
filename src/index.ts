@@ -11,6 +11,7 @@ export * from './engine/handlers/table-alter.handler.js';
 export * from './engine/handlers/table-create.handler.js';
 export * from './engine/handlers/table-drop.handler.js';
 export * from './engine/params.js';
+export * from './engine/sort-values.js';
 export * from './engine/where-matcher.js';
 export * from './errors/csv-sql-engine.error.js';
 export * from './errors/csv.error.js';

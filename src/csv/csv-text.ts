@@ -1,6 +1,5 @@
 import {wrapString} from '@augment-vir/common';
 import {csvParseRows} from 'd3-dsv';
-import {type RequireExactlyOne} from 'type-fest';
 import {trimLines} from '../augments/trim-lines.js';
 
 /**
@@ -27,42 +26,6 @@ export function convertRowToCsv(row: ReadonlyArray<string>): string {
             }
         })
         .join(',');
-}
-
-/**
- * Sorts values for CSV insertion or reading.
- *
- * @category CSV
- */
-export function sortValues({
-    csvFileHeaderOrder,
-    sqlQueryHeaderOrder,
-    from,
-}: Readonly<{
-    csvFileHeaderOrder: ReadonlyArray<string>;
-    sqlQueryHeaderOrder: ReadonlyArray<string>;
-    from: RequireExactlyOne<{
-        /** When a CSV value array is provided, they are sorted to the SQL header order. */
-        csvFile: ReadonlyArray<string>;
-        /** When a SQL value array is provided, they are sorted to the CSV header order. */
-        sqlQuery: ReadonlyArray<string>;
-    }>;
-}>): string[] {
-    const fromOrder = from.sqlQuery ? sqlQueryHeaderOrder : csvFileHeaderOrder;
-    const toOrder = (from.sqlQuery ? csvFileHeaderOrder : sqlQueryHeaderOrder).flatMap((header) => {
-        if (header === '*') {
-            return csvFileHeaderOrder;
-        } else {
-            return header;
-        }
-    });
-    const values: ReadonlyArray<string> = from.csvFile || from.sqlQuery;
-
-    return toOrder.map((header) => {
-        const sourceIndex = fromOrder.indexOf(header);
-        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-        return values[sourceIndex]!;
-    });
 }
 
 /**

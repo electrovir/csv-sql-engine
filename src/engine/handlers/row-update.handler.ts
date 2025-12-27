@@ -7,10 +7,10 @@ import {
     readCsvHeaders,
     writeCsvFile,
 } from '../../csv/csv-file.js';
-import {sortValues} from '../../csv/csv-text.js';
 import {CsvColumnDoesNotExistError} from '../../errors/csv.error.js';
 import {AstType} from '../../sql/ast.js';
 import {defineAstHandler} from '../define-ast-handler.js';
+import {sortValues} from '../sort-values.js';
 import {findWhereMatches} from '../where-matcher.js';
 
 /**
@@ -20,7 +20,7 @@ import {findWhereMatches} from '../where-matcher.js';
  */
 export const rowUpdateHandler = defineAstHandler({
     name: 'row-update',
-    async handler({ast, csvDirPath}) {
+    async handler({ast, csvDirPath, sql}) {
         if (ast.type === AstType.Update) {
             const tableNames = ast.table.map((table) => table.table);
 
@@ -59,7 +59,7 @@ export const rowUpdateHandler = defineAstHandler({
                     });
                 });
 
-                const returning = returningRequirement
+                const updatedRow = returningRequirement
                     ? csvContents
                           .filter((row, index) => rowIndexesToUpdate.includes(index))
                           .map((row) =>
@@ -71,13 +71,14 @@ export const rowUpdateHandler = defineAstHandler({
                                   from: {
                                       csvFile: row,
                                   },
+                                  unconsumedInterpolationValues: sql.unconsumedValues,
                               }),
                           )
                     : undefined;
 
                 await writeCsvFile(tableFilePath, csvContents);
 
-                return returning;
+                return updatedRow;
             });
 
             return returning.flat().filter(check.isTruthy);

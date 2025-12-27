@@ -1,9 +1,9 @@
 import {check} from '@augment-vir/assert';
 import {awaitedBlockingMap} from '@augment-vir/common';
 import {nameCsvTableFile, readCsvFile, readCsvHeaders, writeCsvFile} from '../../csv/csv-file.js';
-import {sortValues} from '../../csv/csv-text.js';
 import {AstType} from '../../sql/ast.js';
 import {defineAstHandler} from '../define-ast-handler.js';
+import {sortValues} from '../sort-values.js';
 import {findWhereMatches} from '../where-matcher.js';
 
 /**
@@ -13,7 +13,7 @@ import {findWhereMatches} from '../where-matcher.js';
  */
 export const rowSelectHandler = defineAstHandler({
     name: 'row-select',
-    async handler({ast, csvDirPath}) {
+    async handler({ast, csvDirPath, sql}) {
         if (ast.type === AstType.Select) {
             const tableNames = ast.from.map((table) => table.table);
 
@@ -42,6 +42,7 @@ export const rowSelectHandler = defineAstHandler({
                             from: {
                                 csvFile: row,
                             },
+                            unconsumedInterpolationValues: sql.unconsumedValues,
                         }),
                     );
 

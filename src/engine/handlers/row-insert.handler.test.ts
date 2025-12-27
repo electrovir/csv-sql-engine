@@ -35,6 +35,74 @@ describe(rowInsertHandler.name, () => {
             },
         },
         {
+            it: 'works with interpolated values',
+            init: {
+                sql: sql`
+                    CREATE TABLE users (id INTEGER PRIMARY KEY, name TEXT NOT NULL, email TEXT);
+                `,
+            },
+            sql: sql`
+                INSERT INTO users (email, id, name) VALUES (${'example@example.com'}, ${2}, ${'example'});
+                INSERT INTO users (email, id, name) VALUES (${'example@example.com'}, ${3}, ${'example'});
+            `,
+            expect: {
+                files: {
+                    after: {
+                        'users.csv': [
+                            '"id","name","email"',
+                            '"2","example","example@example.com"',
+                            '"3","example","example@example.com"',
+                        ],
+                    },
+                    before: {
+                        'users.csv': [
+                            '"id","name","email"',
+                        ],
+                    },
+                },
+                output: [
+                    [],
+                    [],
+                ],
+            },
+        },
+        {
+            it: 'allows sql interpolation',
+            init: {
+                sql: sql`
+                    CREATE TABLE users (id INTEGER PRIMARY KEY, name TEXT NOT NULL, email TEXT);
+                `,
+            },
+            sql: sql`
+                ${sql`
+                    INSERT INTO users (email, id, name) VALUES (${'example@example.com'}, ${2}, ${'example'});
+                `}
+                ${sql`
+                    INSERT INTO users (email, id, name) VALUES (${'example@example.com'}, ${3}, ${'example'});
+                `}
+            `,
+            expect: {
+                files: {
+                    after: {
+                        'users.csv': [
+                            '"id","name","email"',
+                            '"2","example","example@example.com"',
+                            '"3","example","example@example.com"',
+                        ],
+                    },
+                    before: {
+                        'users.csv': [
+                            '"id","name","email"',
+                        ],
+                    },
+                },
+                output: [
+                    [],
+                    [],
+                ],
+            },
+        },
+        {
             it: 'handles partial insert',
             init: {
                 sql: sql`

@@ -1,9 +1,9 @@
 import {check} from '@augment-vir/assert';
 import {awaitedBlockingMap} from '@augment-vir/common';
 import {appendCsvRow, nameCsvTableFile, readCsvHeaders} from '../../csv/csv-file.js';
-import {sortValues} from '../../csv/csv-text.js';
 import {AstType} from '../../sql/ast.js';
 import {defineAstHandler} from '../define-ast-handler.js';
+import {sortValues} from '../sort-values.js';
 
 /**
  * Handles inserting rows.
@@ -12,7 +12,7 @@ import {defineAstHandler} from '../define-ast-handler.js';
  */
 export const rowInsertHandler = defineAstHandler({
     name: 'row-insert',
-    async handler({ast, csvDirPath}) {
+    async handler({ast, csvDirPath, sql}) {
         if (ast.type === AstType.Insert) {
             const tableNames = ast.table.map((table) => table.table);
 
@@ -31,17 +31,16 @@ export const rowInsertHandler = defineAstHandler({
                     sanitizedTableName,
                 });
 
-                const values: string[] = ast.columns
-                    ? sortValues({
-                          csvFileHeaderOrder,
-                          sqlQueryHeaderOrder: ast.columns,
-                          from: {
-                              sqlQuery: rawValues,
-                          },
-                      })
-                    : rawValues;
+                const newRow: string[] = sortValues({
+                    csvFileHeaderOrder,
+                    sqlQueryHeaderOrder: ast.columns || csvFileHeaderOrder,
+                    from: {
+                        sqlQuery: rawValues,
+                    },
+                    unconsumedInterpolationValues: sql.unconsumedValues,
+                });
 
-                await appendCsvRow(values, tableFilePath);
+                await appendCsvRow(newRow, tableFilePath);
 
                 if (ast.returning) {
                     return sortValues({
@@ -50,8 +49,9 @@ export const rowInsertHandler = defineAstHandler({
                             (column) => column.expr.column,
                         ),
                         from: {
-                            csvFile: values,
+                            csvFile: newRow,
                         },
+                        unconsumedInterpolationValues: undefined,
                     });
                 } else {
                     return undefined;

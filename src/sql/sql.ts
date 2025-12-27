@@ -1,5 +1,12 @@
-import {type MaybeArray} from '@augment-vir/common';
+import {type Branded} from '@augment-vir/common';
 import {Sql as OriginalSql} from 'sql-template-tag';
+
+/**
+ * Used to mark consumable values so we don't accidentally assign the wrong array for mutation.
+ *
+ * @category Internal
+ */
+export type ConsumableValue = Branded<string, 'consumable-values'>;
 
 /**
  * A SQL command's strings and values.
@@ -8,6 +15,13 @@ import {Sql as OriginalSql} from 'sql-template-tag';
  */
 export class Sql extends OriginalSql {
     public declare values: string[];
+    /** This will be mutated by whatever is reading this SQL. */
+    public unconsumedValues: ConsumableValue[];
+
+    constructor(rawStrings: readonly string[], rawValues: readonly (Sql | string)[]) {
+        super(rawStrings, rawValues);
+        this.unconsumedValues = [...this.values] as ConsumableValue[];
+    }
 }
 
 /**
@@ -16,11 +30,17 @@ export class Sql extends OriginalSql {
  *
  * @category SQL
  */
-export function sql(
-    strings: ReadonlyArray<string>,
-    ...values: Array<MaybeArray<string> | Sql>
-): Sql {
-    return new Sql(strings, values);
+export function sql(strings: ReadonlyArray<string>, ...values: Array<string | number | Sql>): Sql {
+    return new Sql(
+        strings,
+        values.map((value) => {
+            if (value instanceof Sql) {
+                return value;
+            } else {
+                return String(value);
+            }
+        }),
+    );
 }
 
 /**
