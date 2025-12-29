@@ -7,9 +7,9 @@ import {
     writeCsvFile,
 } from '../../csv/csv-file.js';
 import {CsvColumnDoesNotExistError} from '../../errors/csv.error.js';
-import {getAstType} from '../../util/ast-node.js';
+import {getAst} from '../../util/ast-node.js';
 import {sortValues, type SortValuesOutput} from '../../util/sort-values.js';
-import {findWhereMatches} from '../../util/where-matcher.js';
+import {findWhereMatches, MatchSort} from '../../util/where-matcher.js';
 import {defineAstHandler} from '../define-ast-handler.js';
 
 /**
@@ -24,7 +24,7 @@ export const rowUpdateHandler = defineAstHandler({
             return undefined;
         }
 
-        const tableName = getAstType(ast.into, 'identifier')?.name;
+        const tableName = getAst({ast: ast.into, property: 'type', value: 'identifier'})?.name;
         if (!tableName) {
             throw new Error('No table name');
         }
@@ -41,7 +41,12 @@ export const rowUpdateHandler = defineAstHandler({
         });
         const csvHeaderIndexes = createCsvHeaderMaps(csvHeaders);
 
-        const rowIndexesToUpdate = findWhereMatches(ast.where, csvContents, tableFilePath);
+        const rowIndexesToUpdate = findWhereMatches(
+            ast.where,
+            csvContents,
+            tableFilePath,
+            MatchSort.Ascending,
+        );
 
         const returningRequirement = ast.returning;
 
@@ -59,7 +64,7 @@ export const rowUpdateHandler = defineAstHandler({
                     throw new CsvColumnDoesNotExistError(sanitizedTableName, columnName);
                 }
 
-                const valueNode = getAstType(set.value, 'literal');
+                const valueNode = getAst({ast: set.value, property: 'type', value: 'literal'});
 
                 if (!valueNode) {
                     throw new Error(`Unexpected set type: ${set.value.type}`);
@@ -71,7 +76,7 @@ export const rowUpdateHandler = defineAstHandler({
 
         const sqlHeaders =
             returningRequirement?.map((column) => {
-                const columnNode = getAstType(column, 'identifier');
+                const columnNode = getAst({ast: column, property: 'type', value: 'identifier'});
 
                 if (columnNode) {
                     return columnNode.name;

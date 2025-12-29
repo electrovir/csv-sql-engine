@@ -3,6 +3,7 @@ import {
     type AnyObject,
     awaitedBlockingMap,
     ensureErrorAndPrependMessage,
+    indent,
     wrapInTry,
 } from '@augment-vir/common';
 import {mkdir} from 'node:fs/promises';
@@ -89,7 +90,7 @@ async function executeIndividualCommand(
 
         throw ensureErrorAndPrependMessage(
             error,
-            `Failed to execute '${errorAst.variant || errorAst.type}' command.`,
+            `Failed to execute '${errorAst.variant || errorAst.type}' command:\n\n${indent(JSON.stringify(params.ast, null, 4))}\n\n`,
         );
     }
 }

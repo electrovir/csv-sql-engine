@@ -3,5 +3,8 @@ const {baseConfig} = require('@virmator/spellcheck/configs/cspell.config.base.cj
 module.exports = {
     ...baseConfig,
     ignorePaths: [...baseConfig.ignorePaths],
-    words: [...baseConfig.words],
+    words: [
+        ...baseConfig.words,
+        'savepoint',
+    ],
 };

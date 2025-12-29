@@ -1,3 +1,4 @@
+import {check} from '@augment-vir/assert';
 import {
     ensureArray,
     extractDuplicates,
@@ -11,6 +12,18 @@ import {csvExtension, type CsvFile} from '../csv/csv-file.js';
 import {CsvColumnDoesNotExistError, CsvFileMissingHeadersError} from '../errors/csv.error.js';
 
 /**
+ * Used to determine how matches returned from {@link findWhereMatches} should be sorted.
+ *
+ * @category Internal
+ */
+export enum MatchSort {
+    /** 0 index first */
+    Ascending = 'ascending',
+    /** 0 index last */
+    Descending = 'descending',
+}
+
+/**
  * Finds all row indexes that match the given SQL where conditions.
  *
  * @category Internal
@@ -20,18 +33,30 @@ export function findWhereMatches(
     expressions: Readonly<MaybeArray<Readonly<SqliteAstNode>>> | undefined,
     csvContents: Readonly<CsvFile>,
     csvFilePath: string,
+    sort: MatchSort,
 ): number[] {
-    /**
-     * These must be sorted from greatest to least so that deleting rows does not mess up the
-     * indexes.
-     */
     const allIndexes = removeDuplicates(
         (expressions ? ensureArray(expressions) : [undefined]).flatMap((expression) =>
             innerFindWhereMatches(expression, csvContents, csvFilePath),
         ),
-    ).sort((a, b) => b - a);
+    ).sort((a, b) => {
+        if (sort === MatchSort.Descending) {
+            return b - a;
+        } else {
+            return a - b;
+        }
+    });
 
     return allIndexes;
+}
+
+function getAllIndexes(csvContents: Readonly<CsvFile>) {
+    return csvContents
+        .map((value, index) => index)
+        .filter(
+            /** Exclude the first index, which is headers. */
+            check.isTruthy,
+        );
 }
 
 function innerFindWhereMatches(
@@ -40,7 +65,7 @@ function innerFindWhereMatches(
     csvFilePath: string,
 ): number[] {
     if (!where) {
-        return csvContents.map((value, index) => index);
+        return getAllIndexes(csvContents);
     } else if (
         where.type === 'expression' &&
         where.variant === 'operation' &&
@@ -60,6 +85,17 @@ function innerFindWhereMatches(
             const headers = csvContents[0];
             if (!headers) {
                 throw new CsvFileMissingHeadersError(csvFilePath);
+            }
+
+            /** Handle no-op WHERE clauses like `1=1` that always evaluate to true. */
+            if (where.left.type === 'literal' && where.right.type === 'literal') {
+                if (where.left.value === where.right.value) {
+                    /** Always true - return all rows (excluding headers). */
+                    return getAllIndexes(csvContents);
+                } else {
+                    /** Always false - return no rows. */
+                    return [];
+                }
             }
 
             if (where.left.type !== 'identifier' || where.left.variant !== 'column') {

@@ -12,6 +12,15 @@ export type SortValuesOutput = {
 };
 
 /**
+ * Extracts the column name from a potentially fully qualified identifier. E.g., `main.users.email`
+ * -> `email`, `users.email` -> `email`, `email` -> `email`
+ */
+function extractColumnName(header: string): string {
+    const parts = header.split('.');
+    return parts[parts.length - 1] || header;
+}
+
+/**
  * Sorts values for CSV insertion or reading and handle interpolated values.
  *
  * @category Internal
@@ -32,14 +41,19 @@ export function sortValues({
     }>;
     unconsumedInterpolationValues: undefined | ConsumableValue[];
 }>): SortValuesOutput {
-    const fromOrder = from.sqlQuery ? sqlQueryHeaderOrder : csvFileHeaderOrder;
-    const toOrder = (from.sqlQuery ? csvFileHeaderOrder : sqlQueryHeaderOrder).flatMap((header) => {
-        if (header === '*') {
-            return csvFileHeaderOrder;
-        } else {
-            return header;
-        }
-    });
+    const fromOrder = (from.sqlQuery ? sqlQueryHeaderOrder : csvFileHeaderOrder).map(
+        extractColumnName,
+    );
+    const toOrder = (from.sqlQuery ? csvFileHeaderOrder : sqlQueryHeaderOrder)
+        .flatMap((header) => {
+            if (header === '*') {
+                return csvFileHeaderOrder;
+            } else {
+                return header;
+            }
+        })
+        .map(extractColumnName);
+
     const values: string[][] = (from.csvFile || from.sqlQuery).map((valueRow) => {
         const mappedValueRow = valueRow.map((value) => {
             if (value === '?') {

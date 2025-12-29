@@ -1,27 +1,22 @@
 import {type SqliteAstNode} from 'sqlite-ast';
 
-/** @throws If the request type is not there. */
-export function getAstType<
-    const Ast extends SqliteAstNode | undefined,
-    const TypeName extends NonNullable<Ast>['type'],
->(node: Ast, typeName: TypeName): Extract<Ast, {type: TypeName}> | undefined {
-    if (!node) {
+export function getAst<
+    const Ast extends (SqliteAstNode & Record<PropertyToCheck, any>) | undefined,
+    const PropertyToCheck extends string,
+    const ValueToCheck,
+>({
+    ast,
+    property,
+    value,
+}: {
+    ast: Ast;
+    property: PropertyToCheck;
+    value: ValueToCheck;
+}): Extract<Ast, Record<PropertyToCheck, ValueToCheck>> | undefined {
+    if (!ast) {
         return undefined;
-    } else if (node.type === typeName) {
-        return node as Extract<Ast, {type: TypeName}>;
-    } else {
-        return undefined;
-    }
-}
-
-export function getAstVariant<
-    const Ast extends Extract<SqliteAstNode, {variant: string}> | undefined,
-    const VariantName extends NonNullable<Ast>['variant'],
->(node: Ast, variant: VariantName): Extract<Ast, {variant: VariantName}> | undefined {
-    if (!node) {
-        return undefined;
-    } else if (node.variant === variant) {
-        return node as Extract<Ast, {variant: VariantName}>;
+    } else if (ast[property] === value) {
+        return ast as Extract<Ast, Record<PropertyToCheck, ValueToCheck>>;
     } else {
         return undefined;
     }

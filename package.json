@@ -1,6 +1,6 @@
 {
     "name": "csv-sql-engine",
-    "version": "0.3.1",
+    "version": "0.3.2",
     "description": "API for executing SQL statements on CSV files.",
     "keywords": [
         "CSV",

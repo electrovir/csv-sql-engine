@@ -1,7 +1,7 @@
 import {nameCsvTableFile, readCsvFile, readCsvHeaders, writeCsvFile} from '../../csv/csv-file.js';
-import {getAstType} from '../../util/ast-node.js';
+import {getAst} from '../../util/ast-node.js';
 import {sortValues, type SortValuesOutput} from '../../util/sort-values.js';
-import {findWhereMatches} from '../../util/where-matcher.js';
+import {findWhereMatches, MatchSort} from '../../util/where-matcher.js';
 import {defineAstHandler} from '../define-ast-handler.js';
 
 /**
@@ -16,7 +16,11 @@ export const rowDeleteHandler = defineAstHandler({
             return undefined;
         }
 
-        const tableName = getAstType(ast.from, 'identifier')?.name;
+        const tableName = getAst({
+            ast: ast.from,
+            property: 'type',
+            value: 'identifier',
+        })?.name;
         if (!tableName) {
             throw new Error('Missing table name.');
         }
@@ -32,12 +36,21 @@ export const rowDeleteHandler = defineAstHandler({
             sanitizedTableName,
         });
 
-        const rowIndexesToDelete = findWhereMatches(ast.where, csvContents, tableFilePath);
+        const rowIndexesToDelete = findWhereMatches(
+            ast.where,
+            csvContents,
+            tableFilePath,
+            MatchSort.Descending,
+        );
         const returningRequirement = ast.returning;
 
         const sqlHeaders =
             returningRequirement?.map((column) => {
-                const columnNode = getAstType(column, 'identifier');
+                const columnNode = getAst({
+                    ast: column,
+                    property: 'type',
+                    value: 'identifier',
+                });
 
                 if (columnNode) {
                     return columnNode.name;

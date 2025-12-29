@@ -1,10 +1,11 @@
-import {check} from '@augment-vir/assert';
+import {check, checkWrap} from '@augment-vir/assert';
 import {filterMap} from '@augment-vir/common';
 import {nameCsvTableFile, readCsvFile, readCsvHeaders} from '../../csv/csv-file.js';
 import {SqlUnsupportedOperationError} from '../../errors/sql.error.js';
-import {getAstType} from '../../util/ast-node.js';
+import {getAst} from '../../util/ast-node.js';
+import {readAstText} from '../../util/ast-text.js';
 import {sortValues} from '../../util/sort-values.js';
-import {findWhereMatches} from '../../util/where-matcher.js';
+import {findWhereMatches, MatchSort} from '../../util/where-matcher.js';
 import {defineAstHandler} from '../define-ast-handler.js';
 
 /**
@@ -19,7 +20,7 @@ export const rowSelectHandler = defineAstHandler({
             return undefined;
         }
 
-        const tableName = getAstType(ast.from, 'identifier')?.name;
+        const tableName = getAst({ast: ast.from, property: 'type', value: 'identifier'})?.name;
         if (!tableName) {
             throw new Error('No table name.');
         }
@@ -35,11 +36,31 @@ export const rowSelectHandler = defineAstHandler({
             sanitizedTableName,
         });
 
-        const rowIndexesToSelect = findWhereMatches(ast.where, csvContents, tableFilePath);
+        const limit = ast.limit ? checkWrap.isNumber(Number(readAstText(ast.limit.start))) : -1;
+        if (limit == undefined) {
+            throw new Error(`Unexpected limit: ${JSON.stringify(ast.limit)}`);
+        }
+        const offset = ast.limit?.offset
+            ? checkWrap.isNumber(Number(readAstText(ast.limit.offset)))
+            : 0;
+        if (offset == undefined) {
+            throw new Error(`Unexpected offset: ${JSON.stringify(ast.limit?.offset)}`);
+        }
+
+        const rawIndexes = findWhereMatches(
+            ast.where,
+            csvContents,
+            tableFilePath,
+            MatchSort.Ascending,
+        );
+
+        const rowIndexesToSelect =
+            limit < 0 ? rawIndexes.slice(offset) : rawIndexes.slice(offset, offset + limit);
+
         const columnNames = filterMap(
             ast.result,
             (result) => {
-                return getAstType(result, 'identifier')?.name;
+                return getAst({ast: result, property: 'type', value: 'identifier'})?.name;
             },
             (value): value is string => {
                 if (check.isString(value)) {

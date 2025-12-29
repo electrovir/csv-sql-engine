@@ -5,7 +5,7 @@ import {rename} from 'node:fs/promises';
 import {nameCsvTableFile, readCsvFile, readCsvHeaders, writeCsvFile} from '../../csv/csv-file.js';
 import {CsvColumnDoesNotExistError, CsvTableDoesNotExistError} from '../../errors/csv.error.js';
 import {SqlUnsupportedOperationError} from '../../errors/sql.error.js';
-import {getAstType} from '../../util/ast-node.js';
+import {getAst} from '../../util/ast-node.js';
 import {defineAstHandler} from '../define-ast-handler.js';
 
 /**
@@ -38,7 +38,7 @@ export const tableAlterHandler = defineAstHandler({
 
         if (ast.action === 'rename') {
             const newTableName = assertWrap.isTruthy(
-                getAstType(ast.name, 'identifier')?.name,
+                getAst({ast: ast.name, property: 'type', value: 'identifier'})?.name,
                 'Missing new table name.',
             );
 
@@ -58,12 +58,13 @@ export const tableAlterHandler = defineAstHandler({
             }
 
             const defaultValue =
-                getAstType(
-                    ast.definition.definition.find(
+                getAst({
+                    ast: ast.definition.definition.find(
                         (entry) => entry.type === 'constraint' && entry.variant === 'default',
                     )?.value,
-                    'literal',
-                )?.value || '';
+                    property: 'type',
+                    value: 'literal',
+                })?.value || '';
             const newHeaderName: string = assertWrap.isTruthy(
                 ast.definition.name,
                 'Missing new column name.',
