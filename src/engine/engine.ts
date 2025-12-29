@@ -1,9 +1,13 @@
 import {check} from '@augment-vir/assert';
-import {awaitedBlockingMap, ensureErrorAndPrependMessage} from '@augment-vir/common';
+import {
+    type AnyObject,
+    awaitedBlockingMap,
+    ensureErrorAndPrependMessage,
+    wrapInTry,
+} from '@augment-vir/common';
 import {mkdir} from 'node:fs/promises';
-import {SqlUnsupportedOperationError} from '../errors/sql.error.js';
-import {parseSql} from '../sql/parse-sql.js';
-import {rawSql, type Sql} from '../sql/sql.js';
+import {parseSqlite, rawSql, type Sql} from 'sqlite-ast';
+import {SqlParseError, SqlUnsupportedOperationError} from '../errors/sql.error.js';
 import {type AstHandler, type AstHandlerResult} from './define-ast-handler.js';
 import {rowDeleteHandler} from './handlers/row-delete.handler.js';
 import {rowInsertHandler} from './handlers/row-insert.handler.js';
@@ -38,28 +42,34 @@ export const allAstHandlers: ReadonlyArray<Readonly<AstHandler>> = [
 export async function executeSql(
     sqlInput: Sql | string,
     params: Readonly<ExecuteSqlParams>,
-): Promise<AstHandlerResult[][]> {
+): Promise<AstHandlerResult[]> {
     // eslint-disable-next-line @typescript-eslint/no-deprecated
     const sql = check.isString(sqlInput) ? rawSql(sqlInput) : sqlInput;
 
-    const astResults = parseSql(sql, params);
+    const astList = wrapInTry(() => parseSqlite(sql), {
+        handleError(error) {
+            throw new SqlParseError(sql, error);
+        },
+    });
 
     await mkdir(params.csvDirPath, {
         recursive: true,
     });
 
-    return await awaitedBlockingMap(astResults, async (ast) => {
-        return await executeIndividualCommand({
-            ...params,
-            ast,
-            sql,
-        });
-    });
+    return (
+        await awaitedBlockingMap(astList, async (ast) => {
+            return await executeIndividualCommand({
+                ...params,
+                ast,
+                sql,
+            });
+        })
+    ).filter(check.isTruthy);
 }
 
 async function executeIndividualCommand(
     params: Readonly<AstHandlerParams>,
-): Promise<AstHandlerResult[]> {
+): Promise<AstHandlerResult | undefined> {
     try {
         for (const handler of allAstHandlers) {
             const output = await handler.handler(params);
@@ -70,14 +80,16 @@ async function executeIndividualCommand(
 
         /** If nothing handled the query, then we don't support it. */
         if (params.rejectUnsupportedOperations) {
-            throw new SqlUnsupportedOperationError(params.sql, undefined);
+            throw new SqlUnsupportedOperationError(params.sql, undefined, params.ast);
         }
 
-        return [];
+        return undefined;
     } catch (error) {
+        const errorAst = params.ast as AnyObject;
+
         throw ensureErrorAndPrependMessage(
             error,
-            `Failed to execute '${params.ast.type}' command.`,
+            `Failed to execute '${errorAst.variant || errorAst.type}' command.`,
         );
     }
 }

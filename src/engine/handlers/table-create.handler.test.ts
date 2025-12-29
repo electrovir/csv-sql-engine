@@ -1,7 +1,7 @@
 import {describe} from '@augment-vir/test';
+import {sql} from 'sqlite-ast';
 import {CsvTableExistsError} from '../../errors/csv.error.js';
 import {SqlParseError} from '../../errors/sql.error.js';
-import {sql} from '../../sql/sql.js';
 import {handlerCases} from '../test-handler.mock.js';
 import {tableCreateHandler} from './table-create.handler.js';
 
@@ -22,7 +22,11 @@ describe(tableCreateHandler.name, () => {
                     before: {},
                 },
                 output: [
-                    [],
+                    {
+                        columnNames: [],
+                        numberOfRowsAffected: 0,
+                        values: [],
+                    },
                 ],
             },
         },

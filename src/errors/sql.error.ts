@@ -1,5 +1,5 @@
 import {addSuffix, extractErrorMessage, indent, trimLines} from '@augment-vir/common';
-import {type Sql} from '../sql/sql.js';
+import {type Sql, type SqliteAst} from 'sqlite-ast';
 import {CsvSqlEngineError} from './csv-sql-engine.error.js';
 
 /**
@@ -24,6 +24,7 @@ export class SqlUnsupportedOperationError extends SqlError {
     constructor(
         public readonly sql: Sql,
         public readonly exactFailure: string | undefined,
+        public readonly ast: SqliteAst,
     ) {
         super(
             [
@@ -32,6 +33,8 @@ export class SqlUnsupportedOperationError extends SqlError {
                 exactFailure ? addSuffix({value: exactFailure, suffix: '.'}) : '',
                 '\n',
                 indent(trimLines(sql.sql)),
+                '\n',
+                indent(JSON.stringify(ast, null, 4)),
             ].join(''),
         );
     }
@@ -52,6 +55,17 @@ export class SqlParseError extends SqlError {
         super(
             `Failed to parse SQL: ${extractErrorMessage(originalError)}:\n${indent(trimLines(sql.sql))}`,
         );
+    }
+}
+
+export class SqlAstError extends SqlError {
+    public override readonly name: string = 'SqlAstError';
+
+    constructor(
+        public readonly ast: SqliteAst,
+        public readonly failure: string,
+    ) {
+        super(`SQLite AST parsing failed: ${failure}:\n${indent(JSON.stringify(ast, null, 4))}`);
     }
 }
 

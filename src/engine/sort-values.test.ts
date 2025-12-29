@@ -1,6 +1,6 @@
 import {assert} from '@augment-vir/assert';
 import {describe, it, itCases} from '@augment-vir/test';
-import {type ConsumableValue} from '../sql/sql.js';
+import {type ConsumableValue} from 'sqlite-ast';
 import {sortValues} from './sort-values.js';
 
 describe(sortValues.name, () => {

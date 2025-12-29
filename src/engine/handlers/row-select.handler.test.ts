@@ -1,5 +1,5 @@
 import {describe} from '@augment-vir/test';
-import {sql} from '../../sql/sql.js';
+import {sql} from 'sqlite-ast';
 import {handlerCases} from '../test-handler.mock.js';
 import {rowSelectHandler} from './row-select.handler.js';
 
@@ -41,21 +41,19 @@ describe(rowSelectHandler.name, () => {
                     },
                 },
                 output: [
-                    [
-                        {
-                            numberOfRowsAffected: 0,
-                            columnNames: [
-                                'name',
-                                'id',
+                    {
+                        numberOfRowsAffected: 0,
+                        columnNames: [
+                            'name',
+                            'id',
+                        ],
+                        values: [
+                            [
+                                'example2',
+                                '2',
                             ],
-                            values: [
-                                [
-                                    'example2',
-                                    '2',
-                                ],
-                            ],
-                        },
-                    ],
+                        ],
+                    },
                 ],
             },
         },
@@ -95,16 +93,14 @@ describe(rowSelectHandler.name, () => {
                     },
                 },
                 output: [
-                    [
-                        {
-                            columnNames: [
-                                'name',
-                                'id',
-                            ],
-                            values: [],
-                            numberOfRowsAffected: 0,
-                        },
-                    ],
+                    {
+                        columnNames: [
+                            'name',
+                            'id',
+                        ],
+                        values: [],
+                        numberOfRowsAffected: 0,
+                    },
                 ],
             },
         },
@@ -144,23 +140,21 @@ describe(rowSelectHandler.name, () => {
                     },
                 },
                 output: [
-                    [
-                        {
-                            numberOfRowsAffected: 0,
-                            columnNames: [
-                                'id',
-                                'email',
-                                'name',
+                    {
+                        numberOfRowsAffected: 0,
+                        columnNames: [
+                            'id',
+                            'email',
+                            'name',
+                        ],
+                        values: [
+                            [
+                                '2',
+                                'example2@example.com',
+                                'example2',
                             ],
-                            values: [
-                                [
-                                    '2',
-                                    'example2@example.com',
-                                    'example2',
-                                ],
-                            ],
-                        },
-                    ],
+                        ],
+                    },
                 ],
             },
         },

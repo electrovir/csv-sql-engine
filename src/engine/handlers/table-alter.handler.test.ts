@@ -1,6 +1,6 @@
 import {describe} from '@augment-vir/test';
+import {sql} from 'sqlite-ast';
 import {CsvColumnDoesNotExistError, CsvTableDoesNotExistError} from '../../errors/csv.error.js';
-import {sql} from '../../sql/sql.js';
 import {handlerCases} from '../test-handler.mock.js';
 import {tableAlterHandler} from './table-alter.handler.js';
 
@@ -34,8 +34,16 @@ describe(tableAlterHandler.name, () => {
                     },
                 },
                 output: [
-                    [],
-                    [],
+                    {
+                        columnNames: [],
+                        numberOfRowsAffected: 0,
+                        values: [],
+                    },
+                    {
+                        columnNames: [],
+                        numberOfRowsAffected: 0,
+                        values: [],
+                    },
                 ],
             },
         },
@@ -76,7 +84,11 @@ describe(tableAlterHandler.name, () => {
                     },
                 },
                 output: [
-                    [],
+                    {
+                        columnNames: [],
+                        numberOfRowsAffected: 0,
+                        values: [],
+                    },
                 ],
             },
         },
@@ -123,7 +135,11 @@ describe(tableAlterHandler.name, () => {
                     },
                 },
                 output: [
-                    [],
+                    {
+                        columnNames: [],
+                        numberOfRowsAffected: 0,
+                        values: [],
+                    },
                 ],
             },
         },
@@ -141,6 +157,57 @@ describe(tableAlterHandler.name, () => {
             throws: {
                 matchConstructor: CsvColumnDoesNotExistError,
                 matchMessage: "Column 'missing' does not exist",
+            },
+        },
+        {
+            it: 'renames a table',
+            init: {
+                sql: sql`
+                    CREATE TABLE users (id INTEGER PRIMARY KEY, name TEXT NOT NULL, email TEXT);
+                    INSERT INTO users (id, name, email) VALUES (2, "example", "example@example.com");
+                `,
+            },
+            sql: sql`
+                ALTER TABLE users RENAME TO users2;
+            `,
+            expect: {
+                files: {
+                    before: {
+                        'users.csv': [
+                            '"id","name","email"',
+                            '"2","example","example@example.com"',
+                        ],
+                    },
+                    after: {
+                        'users2.csv': [
+                            '"id","name","email"',
+                            '"2","example","example@example.com"',
+                        ],
+                    },
+                },
+                output: [
+                    {
+                        columnNames: [],
+                        numberOfRowsAffected: 0,
+                        values: [],
+                    },
+                ],
+            },
+        },
+        {
+            it: 'cannot rename a missing table',
+            init: {
+                sql: sql`
+                    CREATE TABLE users (id INTEGER PRIMARY KEY, name TEXT NOT NULL, email TEXT);
+                    INSERT INTO users (id, name, email) VALUES (2, "example", "example@example.com");
+                `,
+            },
+            sql: sql`
+                ALTER TABLE missing RENAME TO missingNo;
+            `,
+            throws: {
+                matchConstructor: CsvTableDoesNotExistError,
+                matchMessage: "'missing' does not exist",
             },
         },
     ]);

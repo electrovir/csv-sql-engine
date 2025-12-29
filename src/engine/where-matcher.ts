@@ -1,8 +1,14 @@
-import {assert} from '@augment-vir/assert';
-import {extractDuplicates, filterMap, removeDuplicates, removeSuffix} from '@augment-vir/common';
+import {
+    ensureArray,
+    extractDuplicates,
+    filterMap,
+    type MaybeArray,
+    removeDuplicates,
+    removeSuffix,
+} from '@augment-vir/common';
+import {type SqliteAstNode} from 'sqlite-ast';
 import {csvExtension, type CsvFile} from '../csv/csv-file.js';
 import {CsvColumnDoesNotExistError, CsvFileMissingHeadersError} from '../errors/csv.error.js';
-import {WhereOperator, type Where} from '../sql/ast.js';
 
 /**
  * Finds all row indexes that match the given SQL where conditions.
@@ -11,7 +17,7 @@ import {WhereOperator, type Where} from '../sql/ast.js';
  * @returns An array of row indexes that match the given where condition.
  */
 export function findWhereMatches(
-    where: Readonly<Where>,
+    expressions: Readonly<MaybeArray<Readonly<SqliteAstNode>>> | undefined,
     csvContents: Readonly<CsvFile>,
     csvFilePath: string,
 ): number[] {
@@ -19,51 +25,73 @@ export function findWhereMatches(
      * These must be sorted from greatest to least so that deleting rows does not mess up the
      * indexes.
      */
-    return innerFindWhereMatches(where, csvContents, csvFilePath).sort((a, b) => b - a);
+    const allIndexes = removeDuplicates(
+        (expressions ? ensureArray(expressions) : [undefined]).flatMap((expression) =>
+            innerFindWhereMatches(expression, csvContents, csvFilePath),
+        ),
+    ).sort((a, b) => b - a);
+
+    return allIndexes;
 }
 
 function innerFindWhereMatches(
-    where: Readonly<Where>,
+    where: Readonly<SqliteAstNode> | undefined,
     csvContents: Readonly<CsvFile>,
     csvFilePath: string,
 ): number[] {
-    if (where.operator === WhereOperator.Or) {
-        return removeDuplicates([
-            ...innerFindWhereMatches(where.left, csvContents, csvFilePath),
-            ...innerFindWhereMatches(where.right, csvContents, csvFilePath),
-        ]);
-    } else if (where.operator === WhereOperator.And) {
-        return extractDuplicates([
-            ...innerFindWhereMatches(where.left, csvContents, csvFilePath),
-            ...innerFindWhereMatches(where.right, csvContents, csvFilePath),
-        ]).duplicates;
-        // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-    } else if (where.operator === WhereOperator.Equals) {
-        const headers = csvContents[0];
-        if (!headers) {
-            throw new CsvFileMissingHeadersError(csvFilePath);
-        }
+    if (!where) {
+        return csvContents.map((value, index) => index);
+    } else if (
+        where.type === 'expression' &&
+        where.variant === 'operation' &&
+        where.format === 'binary'
+    ) {
+        if (where.operation === 'or') {
+            return removeDuplicates([
+                ...innerFindWhereMatches(where.left, csvContents, csvFilePath),
+                ...innerFindWhereMatches(where.right, csvContents, csvFilePath),
+            ]);
+        } else if (where.operation === 'and') {
+            return extractDuplicates([
+                ...innerFindWhereMatches(where.left, csvContents, csvFilePath),
+                ...innerFindWhereMatches(where.right, csvContents, csvFilePath),
+            ]).duplicates;
+        } else if (where.operation === '=') {
+            const headers = csvContents[0];
+            if (!headers) {
+                throw new CsvFileMissingHeadersError(csvFilePath);
+            }
 
-        const columnIndex = headers.indexOf(where.left.column);
-        if (columnIndex < 0) {
-            throw new CsvColumnDoesNotExistError(
-                removeSuffix({value: csvFilePath, suffix: csvExtension}),
-                where.left.column,
+            if (where.left.type !== 'identifier' || where.left.variant !== 'column') {
+                throw new Error(`Expected column identifier on left side of '=' operation`);
+            }
+            if (where.right.type !== 'literal') {
+                throw new Error(`Expected literal value on right side of '=' operation`);
+            }
+
+            const columnIndex = headers.indexOf(where.left.name);
+            if (columnIndex < 0) {
+                throw new CsvColumnDoesNotExistError(
+                    removeSuffix({value: csvFilePath, suffix: csvExtension}),
+                    where.left.name,
+                );
+            }
+
+            const rightValue = where.right.value;
+            return filterMap(
+                csvContents,
+                (row, index) => index,
+                (index, row) => {
+                    /** Don't select from the header row. */
+                    const isHeaderRow: boolean = !index;
+
+                    return !isHeaderRow && String(row[columnIndex]) === rightValue;
+                },
             );
+        } else {
+            throw new Error(`Unsupported WHERE operation: '${where.operation}'`);
         }
-
-        return filterMap(
-            csvContents,
-            (row, index) => index,
-            (index, row) => {
-                /** Don't select from the header row. */
-                const isHeaderRow: boolean = !index;
-
-                return !isHeaderRow && String(row[columnIndex]) === String(where.right.value);
-            },
-        );
     } else {
-        assert.tsType(where.operator).equals<never>();
-        throw new Error(`Forgot to implement WHERE operation: '${String(where.operator)}'`);
+        throw new Error(`Unsupported WHERE expression type: '${where.type}'`);
     }
 }

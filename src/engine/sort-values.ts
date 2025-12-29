@@ -1,5 +1,5 @@
+import {type ConsumableValue} from 'sqlite-ast';
 import {type RequireExactlyOne} from 'type-fest';
-import {type ConsumableValue} from '../sql/sql.js';
 
 /**
  * Output from {@link sortValues}.

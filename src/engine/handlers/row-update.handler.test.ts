@@ -1,5 +1,5 @@
 import {describe} from '@augment-vir/test';
-import {sql} from '../../sql/sql.js';
+import {sql} from 'sqlite-ast';
 import {handlerCases} from '../test-handler.mock.js';
 import {rowUpdateHandler} from './row-update.handler.js';
 
@@ -41,13 +41,11 @@ describe(rowUpdateHandler.name, () => {
                     },
                 },
                 output: [
-                    [
-                        {
-                            columnNames: [],
-                            values: [],
-                            numberOfRowsAffected: 1,
-                        },
-                    ],
+                    {
+                        columnNames: [],
+                        values: [],
+                        numberOfRowsAffected: 1,
+                    },
                 ],
             },
         },
@@ -87,21 +85,19 @@ describe(rowUpdateHandler.name, () => {
                     },
                 },
                 output: [
-                    [
-                        {
-                            numberOfRowsAffected: 1,
-                            columnNames: [
-                                'id',
-                                'name',
+                    {
+                        numberOfRowsAffected: 1,
+                        columnNames: [
+                            'id',
+                            'name',
+                        ],
+                        values: [
+                            [
+                                '2',
+                                'new2',
                             ],
-                            values: [
-                                [
-                                    '2',
-                                    'new2',
-                                ],
-                            ],
-                        },
-                    ],
+                        ],
+                    },
                 ],
             },
         },

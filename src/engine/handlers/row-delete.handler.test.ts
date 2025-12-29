@@ -1,5 +1,5 @@
 import {describe} from '@augment-vir/test';
-import {sql} from '../../sql/sql.js';
+import {sql} from 'sqlite-ast';
 import {handlerCases} from '../test-handler.mock.js';
 import {rowDeleteHandler} from './row-delete.handler.js';
 
@@ -40,13 +40,11 @@ describe(rowDeleteHandler.name, () => {
                     },
                 },
                 output: [
-                    [
-                        {
-                            columnNames: [],
-                            values: [],
-                            numberOfRowsAffected: 1,
-                        },
-                    ],
+                    {
+                        columnNames: [],
+                        values: [],
+                        numberOfRowsAffected: 1,
+                    },
                 ],
             },
         },
@@ -84,13 +82,11 @@ describe(rowDeleteHandler.name, () => {
                     },
                 },
                 output: [
-                    [
-                        {
-                            numberOfRowsAffected: 2,
-                            columnNames: [],
-                            values: [],
-                        },
-                    ],
+                    {
+                        numberOfRowsAffected: 2,
+                        columnNames: [],
+                        values: [],
+                    },
                 ],
             },
         },
@@ -128,22 +124,20 @@ describe(rowDeleteHandler.name, () => {
                     },
                 },
                 output: [
-                    [
-                        {
-                            numberOfRowsAffected: 2,
-                            columnNames: [
-                                'id',
+                    {
+                        numberOfRowsAffected: 2,
+                        columnNames: [
+                            'id',
+                        ],
+                        values: [
+                            [
+                                '2',
                             ],
-                            values: [
-                                [
-                                    '2',
-                                ],
-                                [
-                                    '4',
-                                ],
+                            [
+                                '4',
                             ],
-                        },
-                    ],
+                        ],
+                    },
                 ],
             },
         },

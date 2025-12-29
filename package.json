@@ -1,6 +1,6 @@
 {
     "name": "csv-sql-engine",
-    "version": "0.2.0",
+    "version": "0.3.0",
     "description": "API for executing SQL statements on CSV files.",
     "keywords": [
         "CSV",
@@ -43,17 +43,17 @@
         "test:update": "npm run test update"
     },
     "dependencies": {
-        "@augment-vir/assert": "^31.56.0",
-        "@augment-vir/common": "^31.56.0",
-        "@augment-vir/node": "^31.56.0",
+        "@augment-vir/assert": "^31.57.0",
+        "@augment-vir/common": "^31.57.0",
+        "@augment-vir/node": "^31.57.0",
         "@sinclair/typebox": "^0.34.45",
         "d3-dsv": "^3.0.1",
-        "node-sql-parser": "^5.3.13",
         "object-shape-tester": "^6.11.0",
-        "sql-template-tag": "^5.2.1"
+        "sqlite-ast": "^0.0.7",
+        "sqlite-parser": "^1.0.1"
     },
     "devDependencies": {
-        "@augment-vir/test": "^31.56.0",
+        "@augment-vir/test": "^31.57.0",
         "@eslint/eslintrc": "^3.3.3",
         "@eslint/js": "^9.39.2",
         "@stylistic/eslint-plugin": "^5.6.1",

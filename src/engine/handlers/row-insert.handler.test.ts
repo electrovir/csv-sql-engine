@@ -1,5 +1,5 @@
 import {describe} from '@augment-vir/test';
-import {sql} from '../../sql/sql.js';
+import {sql} from 'sqlite-ast';
 import {handlerCases} from '../test-handler.mock.js';
 import {rowInsertHandler} from './row-insert.handler.js';
 
@@ -30,13 +30,11 @@ describe(rowInsertHandler.name, () => {
                     },
                 },
                 output: [
-                    [
-                        {
-                            columnNames: [],
-                            values: [],
-                            numberOfRowsAffected: 1,
-                        },
-                    ],
+                    {
+                        columnNames: [],
+                        values: [],
+                        numberOfRowsAffected: 1,
+                    },
                 ],
             },
         },
@@ -67,20 +65,16 @@ describe(rowInsertHandler.name, () => {
                     },
                 },
                 output: [
-                    [
-                        {
-                            columnNames: [],
-                            values: [],
-                            numberOfRowsAffected: 1,
-                        },
-                    ],
-                    [
-                        {
-                            columnNames: [],
-                            values: [],
-                            numberOfRowsAffected: 1,
-                        },
-                    ],
+                    {
+                        columnNames: [],
+                        values: [],
+                        numberOfRowsAffected: 1,
+                    },
+                    {
+                        columnNames: [],
+                        values: [],
+                        numberOfRowsAffected: 1,
+                    },
                 ],
             },
         },
@@ -115,20 +109,16 @@ describe(rowInsertHandler.name, () => {
                     },
                 },
                 output: [
-                    [
-                        {
-                            columnNames: [],
-                            values: [],
-                            numberOfRowsAffected: 1,
-                        },
-                    ],
-                    [
-                        {
-                            columnNames: [],
-                            values: [],
-                            numberOfRowsAffected: 1,
-                        },
-                    ],
+                    {
+                        columnNames: [],
+                        values: [],
+                        numberOfRowsAffected: 1,
+                    },
+                    {
+                        columnNames: [],
+                        values: [],
+                        numberOfRowsAffected: 1,
+                    },
                 ],
             },
         },
@@ -157,13 +147,11 @@ describe(rowInsertHandler.name, () => {
                     },
                 },
                 output: [
-                    [
-                        {
-                            columnNames: [],
-                            values: [],
-                            numberOfRowsAffected: 1,
-                        },
-                    ],
+                    {
+                        columnNames: [],
+                        values: [],
+                        numberOfRowsAffected: 1,
+                    },
                 ],
             },
         },
@@ -192,13 +180,11 @@ describe(rowInsertHandler.name, () => {
                     },
                 },
                 output: [
-                    [
-                        {
-                            columnNames: [],
-                            values: [],
-                            numberOfRowsAffected: 1,
-                        },
-                    ],
+                    {
+                        columnNames: [],
+                        values: [],
+                        numberOfRowsAffected: 1,
+                    },
                 ],
             },
         },
@@ -229,38 +215,34 @@ describe(rowInsertHandler.name, () => {
                     },
                 },
                 output: [
-                    [
-                        {
-                            numberOfRowsAffected: 1,
-                            columnNames: [
-                                'id',
-                                'name',
-                                'email',
+                    {
+                        numberOfRowsAffected: 1,
+                        columnNames: [
+                            'id',
+                            'name',
+                            'email',
+                        ],
+                        values: [
+                            [
+                                '2',
+                                'example',
+                                'example@example.com',
                             ],
-                            values: [
-                                [
-                                    '2',
-                                    'example',
-                                    'example@example.com',
-                                ],
+                        ],
+                    },
+                    {
+                        numberOfRowsAffected: 1,
+                        columnNames: [
+                            'name',
+                            'id',
+                        ],
+                        values: [
+                            [
+                                'example',
+                                '3',
                             ],
-                        },
-                    ],
-                    [
-                        {
-                            numberOfRowsAffected: 1,
-                            columnNames: [
-                                'name',
-                                'id',
-                            ],
-                            values: [
-                                [
-                                    'example',
-                                    '3',
-                                ],
-                            ],
-                        },
-                    ],
+                        ],
+                    },
                 ],
             },
         },

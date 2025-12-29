@@ -1,3 +1,4 @@
+export * from 'sqlite-ast';
 export * from './csv/csv-file.js';
 export * from './csv/csv-text.js';
 export * from './engine/define-ast-handler.js';
@@ -15,6 +16,3 @@ export * from './engine/where-matcher.js';
 export * from './errors/csv-sql-engine.error.js';
 export * from './errors/csv.error.js';
 export * from './errors/sql.error.js';
-export * from './sql/ast.js';
-export * from './sql/parse-sql.js';
-export * from './sql/sql.js';

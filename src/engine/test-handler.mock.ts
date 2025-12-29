@@ -1,3 +1,4 @@
+/* eslint-disable sonarjs/no-commented-code */
 import {check, type ErrorMatchOptions} from '@augment-vir/assert';
 import {addSuffix, mapObject, mapObjectValues} from '@augment-vir/common';
 import {readAllDirContents, writeDirContents} from '@augment-vir/node';
@@ -7,10 +8,10 @@ import {
     type UniversalTestContext,
 } from '@augment-vir/test';
 import {mkdir, rm} from 'node:fs/promises';
+import {type Sql} from 'sqlite-ast';
 import {type RequireExactlyOne} from 'type-fest';
 import {csvExtension} from '../csv/csv-file.js';
 import {createTestDirPath} from '../file-paths.mock.js';
-import {type Sql} from '../sql/sql.js';
 import {type AstHandlerResult} from './define-ast-handler.js';
 import {executeSql} from './engine.js';
 
@@ -30,7 +31,7 @@ export type AstHandlerTestCase = {
     sql: Readonly<Sql>;
 } & RequireExactlyOne<{
     expect: {
-        output: AstHandlerResult[][];
+        output: AstHandlerResult[];
         files: {
             before: SplitFileContents;
             after: SplitFileContents;
@@ -44,55 +45,62 @@ export function handlerCases(testCases: ReadonlyArray<Readonly<AstHandlerTestCas
         testContext: Readonly<UniversalTestContext>,
         testConfig: Readonly<Omit<AstHandlerTestCase, 'it' | 'expect'>>,
     ): Promise<AstHandlerTestCase['expect']> {
-        const testDirPath = createTestDirPath(testContext);
-        await rm(testDirPath, {
-            force: true,
-            recursive: true,
-        });
-        await mkdir(testDirPath, {
-            recursive: true,
-        });
+        // eslint-disable-next-line no-useless-catch
+        try {
+            const testDirPath = createTestDirPath(testContext);
+            await rm(testDirPath, {
+                force: true,
+                recursive: true,
+            });
+            await mkdir(testDirPath, {
+                recursive: true,
+            });
 
-        if (testConfig.init?.files) {
-            await writeDirContents(
-                testDirPath,
-                mapObject(testConfig.init.files, (key, value) => {
-                    return {
-                        key: addSuffix({value: key, suffix: csvExtension}),
-                        value: value.join('\n'),
-                    };
+            if (testConfig.init?.files) {
+                await writeDirContents(
+                    testDirPath,
+                    mapObject(testConfig.init.files, (key, value) => {
+                        return {
+                            key: addSuffix({value: key, suffix: csvExtension}),
+                            value: value.join('\n'),
+                        };
+                    }),
+                );
+            } else if (testConfig.init?.sql) {
+                await executeSql(testConfig.init.sql, {
+                    csvDirPath: testDirPath,
+                });
+            }
+
+            const dirContentsBefore = splitFileContents(
+                await readAllDirContents(testDirPath, {
+                    recursive: true,
                 }),
             );
-        } else if (testConfig.init?.sql) {
-            await executeSql(testConfig.init.sql, {
+
+            const output = await executeSql(testConfig.sql, {
                 csvDirPath: testDirPath,
+                rejectUnsupportedOperations: true,
             });
+
+            const dirContentsAfter = splitFileContents(
+                await readAllDirContents(testDirPath, {
+                    recursive: true,
+                }),
+            );
+
+            return {
+                output,
+                files: {
+                    before: dirContentsBefore,
+                    after: dirContentsAfter,
+                },
+            };
+            // eslint-disable-next-line sonarjs/no-useless-catch
+        } catch (error) {
+            // log.error(error);
+            throw error;
         }
-
-        const dirContentsBefore = splitFileContents(
-            await readAllDirContents(testDirPath, {
-                recursive: true,
-            }),
-        );
-
-        const output = await executeSql(testConfig.sql, {
-            csvDirPath: testDirPath,
-            rejectUnsupportedOperations: true,
-        });
-
-        const dirContentsAfter = splitFileContents(
-            await readAllDirContents(testDirPath, {
-                recursive: true,
-            }),
-        );
-
-        return {
-            output,
-            files: {
-                before: dirContentsBefore,
-                after: dirContentsAfter,
-            },
-        };
     }
 
     itCasesWithContext(

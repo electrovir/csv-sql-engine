@@ -1,6 +1,6 @@
 import {describe} from '@augment-vir/test';
+import {sql} from 'sqlite-ast';
 import {CsvTableDoesNotExistError} from '../../errors/csv.error.js';
-import {sql} from '../../sql/sql.js';
 import {handlerCases} from '../test-handler.mock.js';
 import {tableDropHandler} from './table-drop.handler.js';
 
@@ -26,7 +26,15 @@ describe(tableDropHandler.name, () => {
                     after: {},
                 },
                 output: [
-                    [],
+                    {
+                        columnNames: [
+                            'id',
+                            'name',
+                            'email',
+                        ],
+                        numberOfRowsAffected: 0,
+                        values: [],
+                    },
                 ],
             },
         },
@@ -51,7 +59,11 @@ describe(tableDropHandler.name, () => {
                     after: {},
                 },
                 output: [
-                    [],
+                    {
+                        columnNames: [],
+                        numberOfRowsAffected: 0,
+                        values: [],
+                    },
                 ],
             },
         },

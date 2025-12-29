@@ -22,7 +22,7 @@ export type AstHandler = {
      * Return `undefined` to mark this AST as not-handled. That means that other handlers should be
      * used instead.
      */
-    handler: (params: Readonly<AstHandlerParams>) => MaybePromise<AstHandlerResult[] | undefined>;
+    handler: (params: Readonly<AstHandlerParams>) => MaybePromise<AstHandlerResult | undefined>;
 };
 
 /**
