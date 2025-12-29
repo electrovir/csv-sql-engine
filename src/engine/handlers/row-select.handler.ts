@@ -4,6 +4,7 @@ import {nameCsvTableFile, readCsvFile, readCsvHeaders} from '../../csv/csv-file.
 import {SqlUnsupportedOperationError} from '../../errors/sql.error.js';
 import {getAst} from '../../util/ast-node.js';
 import {readAstText} from '../../util/ast-text.js';
+import {readConsumableValue} from '../../util/consumable.js';
 import {sortValues} from '../../util/sort-values.js';
 import {findWhereMatches, MatchSort} from '../../util/where-matcher.js';
 import {defineAstHandler} from '../define-ast-handler.js';
@@ -36,13 +37,20 @@ export const rowSelectHandler = defineAstHandler({
             sanitizedTableName,
         });
 
-        const limit = ast.limit ? checkWrap.isNumber(Number(readAstText(ast.limit.start))) : -1;
+        const limit = ast.limit
+            ? checkWrap.isNumber(
+                  Number(readConsumableValue(readAstText(ast.limit.start), sql.unconsumedValues)),
+              )
+            : -1;
         if (limit == undefined) {
             throw new Error(`Unexpected limit: ${JSON.stringify(ast.limit)}`);
         }
         const offset = ast.limit?.offset
-            ? checkWrap.isNumber(Number(readAstText(ast.limit.offset)))
+            ? checkWrap.isNumber(
+                  Number(readConsumableValue(readAstText(ast.limit.offset), sql.unconsumedValues)),
+              )
             : 0;
+
         if (offset == undefined) {
             throw new Error(`Unexpected offset: ${JSON.stringify(ast.limit?.offset)}`);
         }
@@ -77,15 +85,19 @@ export const rowSelectHandler = defineAstHandler({
             },
         );
 
+        const selectedRows = csvContents.filter((row, index) => rowIndexesToSelect.includes(index));
+
+        const result = sortValues({
+            csvFileHeaderOrder: csvHeaders,
+            sqlQueryHeaderOrder: columnNames,
+            from: {
+                csvFile: selectedRows,
+            },
+            unconsumedInterpolationValues: sql.unconsumedValues,
+        });
+
         return {
-            ...sortValues({
-                csvFileHeaderOrder: csvHeaders,
-                sqlQueryHeaderOrder: columnNames,
-                from: {
-                    csvFile: csvContents.filter((row, index) => rowIndexesToSelect.includes(index)),
-                },
-                unconsumedInterpolationValues: sql.unconsumedValues,
-            }),
+            ...result,
             numberOfRowsAffected: 0,
         };
     },

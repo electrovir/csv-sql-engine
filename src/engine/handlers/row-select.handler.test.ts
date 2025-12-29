@@ -301,5 +301,65 @@ describe(rowSelectHandler.name, () => {
                 ],
             },
         },
+        {
+            it: 'uses param limit and offset',
+            init: {
+                sql: sql`
+                    CREATE TABLE users (id INTEGER PRIMARY KEY, email TEXT, name TEXT NOT NULL);
+                    INSERT INTO users VALUES (1, "example1@example.com", "example1");
+                    INSERT INTO users VALUES (2, "example2@example.com", "example2");
+                    INSERT INTO users VALUES (3, "example3@example.com", "example3");
+                    INSERT INTO users VALUES (4, "example4@example.com", "example4");
+                `,
+            },
+            sql: sql`
+                SELECT \`main\`.\`users\`.\`email\`, \`main\`.\`users\`.\`name\` FROM \`main\`.\`users\` WHERE 1=1 LIMIT ${-1} OFFSET ${'2'};
+            `,
+            expect: {
+                files: {
+                    before: {
+                        main: {
+                            'users.csv': [
+                                '"id","email","name"',
+                                '"1","example1@example.com","example1"',
+                                '"2","example2@example.com","example2"',
+                                '"3","example3@example.com","example3"',
+                                '"4","example4@example.com","example4"',
+                            ],
+                        },
+                    },
+                    after: {
+                        main: {
+                            'users.csv': [
+                                '"id","email","name"',
+                                '"1","example1@example.com","example1"',
+                                '"2","example2@example.com","example2"',
+                                '"3","example3@example.com","example3"',
+                                '"4","example4@example.com","example4"',
+                            ],
+                        },
+                    },
+                },
+                output: [
+                    {
+                        numberOfRowsAffected: 0,
+                        columnNames: [
+                            'email',
+                            'name',
+                        ],
+                        values: [
+                            [
+                                'example3@example.com',
+                                'example3',
+                            ],
+                            [
+                                'example4@example.com',
+                                'example4',
+                            ],
+                        ],
+                    },
+                ],
+            },
+        },
     ]);
 });

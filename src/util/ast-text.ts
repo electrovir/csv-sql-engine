@@ -1,4 +1,4 @@
-import {type MaybeArray} from '@augment-vir/common';
+import {addPrefix, type MaybeArray} from '@augment-vir/common';
 import {type SqliteAstNode} from 'sqlite-ast';
 
 /**
@@ -694,7 +694,7 @@ function readVariableText(node: SqliteAstNode & {type: 'variable'}): string {
             text = `:${node.name}`;
             break;
         case 'numbered':
-            text = `?${node.name}`;
+            text = addPrefix({value: node.name, prefix: '?'});
             break;
         case 'tcl':
             text = `$${node.name}`;

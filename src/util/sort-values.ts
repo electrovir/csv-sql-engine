@@ -1,5 +1,6 @@
 import {type ConsumableValue} from 'sqlite-ast';
 import {type RequireExactlyOne} from 'type-fest';
+import {readConsumableValue} from './consumable.js';
 
 /**
  * Output from {@link sortValues}.
@@ -15,7 +16,7 @@ export type SortValuesOutput = {
  * Extracts the column name from a potentially fully qualified identifier. E.g., `main.users.email`
  * -> `email`, `users.email` -> `email`, `email` -> `email`
  */
-function extractColumnName(header: string): string {
+export function extractColumnName(header: string): string {
     const parts = header.split('.');
     return parts[parts.length - 1] || header;
 }
@@ -56,21 +57,7 @@ export function sortValues({
 
     const values: string[][] = (from.csvFile || from.sqlQuery).map((valueRow) => {
         const mappedValueRow = valueRow.map((value) => {
-            if (value === '?') {
-                if (unconsumedInterpolationValues) {
-                    if (unconsumedInterpolationValues.length) {
-                        return unconsumedInterpolationValues.shift() || '';
-                    } else {
-                        throw new Error(
-                            'Encountered ? but all interpolation values have already been used.',
-                        );
-                    }
-                } else {
-                    throw new Error('Encountered ? but received no interpolation values.');
-                }
-            } else {
-                return value;
-            }
+            return readConsumableValue(value, unconsumedInterpolationValues);
         });
 
         return toOrder.map((header) => {
