@@ -8,9 +8,9 @@ import {
 } from '../../csv/csv-file.js';
 import {CsvColumnDoesNotExistError} from '../../errors/csv.error.js';
 import {getAstType} from '../../util/ast-node.js';
+import {sortValues, type SortValuesOutput} from '../../util/sort-values.js';
+import {findWhereMatches} from '../../util/where-matcher.js';
 import {defineAstHandler} from '../define-ast-handler.js';
-import {sortValues, type SortValuesOutput} from '../sort-values.js';
-import {findWhereMatches} from '../where-matcher.js';
 
 /**
  * Handles updating rows.

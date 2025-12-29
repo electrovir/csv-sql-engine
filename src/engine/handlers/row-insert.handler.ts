@@ -4,8 +4,8 @@ import {existsSync} from 'node:fs';
 import {appendCsvRow, nameCsvTableFile, readCsvFile, readCsvHeaders} from '../../csv/csv-file.js';
 import {CsvTableDoesNotExistError} from '../../errors/csv.error.js';
 import {SqlUnsupportedOperationError} from '../../errors/sql.error.js';
+import {sortValues, type SortValuesOutput} from '../../util/sort-values.js';
 import {defineAstHandler} from '../define-ast-handler.js';
-import {sortValues, type SortValuesOutput} from '../sort-values.js';
 
 /**
  * Handles inserting rows.

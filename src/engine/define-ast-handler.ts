@@ -1,6 +1,6 @@
 import {type MaybePromise} from '@augment-vir/common';
+import {type SortValuesOutput} from '../util/sort-values.js';
 import {type AstHandlerParams} from './params.js';
-import {type SortValuesOutput} from './sort-values.js';
 
 /**
  * Output from a handler that handled a SQL query.

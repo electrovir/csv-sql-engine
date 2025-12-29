@@ -3,9 +3,9 @@ import {filterMap} from '@augment-vir/common';
 import {nameCsvTableFile, readCsvFile, readCsvHeaders} from '../../csv/csv-file.js';
 import {SqlUnsupportedOperationError} from '../../errors/sql.error.js';
 import {getAstType} from '../../util/ast-node.js';
+import {sortValues} from '../../util/sort-values.js';
+import {findWhereMatches} from '../../util/where-matcher.js';
 import {defineAstHandler} from '../define-ast-handler.js';
-import {sortValues} from '../sort-values.js';
-import {findWhereMatches} from '../where-matcher.js';
 
 /**
  * Handles SQL selection.

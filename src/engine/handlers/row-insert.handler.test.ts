@@ -1,6 +1,6 @@
 import {describe} from '@augment-vir/test';
 import {sql} from 'sqlite-ast';
-import {handlerCases} from '../test-handler.mock.js';
+import {handlerCases} from '../../util/test-handler.mock.js';
 import {rowInsertHandler} from './row-insert.handler.js';
 
 describe(rowInsertHandler.name, () => {
@@ -18,15 +18,19 @@ describe(rowInsertHandler.name, () => {
             expect: {
                 files: {
                     after: {
-                        'users.csv': [
-                            '"id","name","email"',
-                            '"2","example","example@example.com"',
-                        ],
+                        main: {
+                            'users.csv': [
+                                '"id","name","email"',
+                                '"2","example","example@example.com"',
+                            ],
+                        },
                     },
                     before: {
-                        'users.csv': [
-                            '"id","name","email"',
-                        ],
+                        main: {
+                            'users.csv': [
+                                '"id","name","email"',
+                            ],
+                        },
                     },
                 },
                 output: [
@@ -52,16 +56,20 @@ describe(rowInsertHandler.name, () => {
             expect: {
                 files: {
                     after: {
-                        'users.csv': [
-                            '"id","name","email"',
-                            '"2","example","example@example.com"',
-                            '"3","example","example@example.com"',
-                        ],
+                        main: {
+                            'users.csv': [
+                                '"id","name","email"',
+                                '"2","example","example@example.com"',
+                                '"3","example","example@example.com"',
+                            ],
+                        },
                     },
                     before: {
-                        'users.csv': [
-                            '"id","name","email"',
-                        ],
+                        main: {
+                            'users.csv': [
+                                '"id","name","email"',
+                            ],
+                        },
                     },
                 },
                 output: [
@@ -96,16 +104,20 @@ describe(rowInsertHandler.name, () => {
             expect: {
                 files: {
                     after: {
-                        'users.csv': [
-                            '"id","name","email"',
-                            '"2","example","example@example.com"',
-                            '"3","example","example@example.com"',
-                        ],
+                        main: {
+                            'users.csv': [
+                                '"id","name","email"',
+                                '"2","example","example@example.com"',
+                                '"3","example","example@example.com"',
+                            ],
+                        },
                     },
                     before: {
-                        'users.csv': [
-                            '"id","name","email"',
-                        ],
+                        main: {
+                            'users.csv': [
+                                '"id","name","email"',
+                            ],
+                        },
                     },
                 },
                 output: [
@@ -135,15 +147,19 @@ describe(rowInsertHandler.name, () => {
             expect: {
                 files: {
                     after: {
-                        'users.csv': [
-                            '"id","name","email"',
-                            '"","example","example@example.com"',
-                        ],
+                        main: {
+                            'users.csv': [
+                                '"id","name","email"',
+                                '"","example","example@example.com"',
+                            ],
+                        },
                     },
                     before: {
-                        'users.csv': [
-                            '"id","name","email"',
-                        ],
+                        main: {
+                            'users.csv': [
+                                '"id","name","email"',
+                            ],
+                        },
                     },
                 },
                 output: [
@@ -168,15 +184,19 @@ describe(rowInsertHandler.name, () => {
             expect: {
                 files: {
                     after: {
-                        'users.csv': [
-                            '"id","name","email"',
-                            '"2","example","example@example.com"',
-                        ],
+                        main: {
+                            'users.csv': [
+                                '"id","name","email"',
+                                '"2","example","example@example.com"',
+                            ],
+                        },
                     },
                     before: {
-                        'users.csv': [
-                            '"id","name","email"',
-                        ],
+                        main: {
+                            'users.csv': [
+                                '"id","name","email"',
+                            ],
+                        },
                     },
                 },
                 output: [
@@ -202,16 +222,20 @@ describe(rowInsertHandler.name, () => {
             expect: {
                 files: {
                     after: {
-                        'users.csv': [
-                            '"id","name","email"',
-                            '"2","example","example@example.com"',
-                            '"3","example","example@example.com"',
-                        ],
+                        main: {
+                            'users.csv': [
+                                '"id","name","email"',
+                                '"2","example","example@example.com"',
+                                '"3","example","example@example.com"',
+                            ],
+                        },
                     },
                     before: {
-                        'users.csv': [
-                            '"id","name","email"',
-                        ],
+                        main: {
+                            'users.csv': [
+                                '"id","name","email"',
+                            ],
+                        },
                     },
                 },
                 output: [

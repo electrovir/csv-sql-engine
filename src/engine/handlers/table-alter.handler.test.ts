@@ -1,7 +1,7 @@
 import {describe} from '@augment-vir/test';
 import {sql} from 'sqlite-ast';
 import {CsvColumnDoesNotExistError, CsvTableDoesNotExistError} from '../../errors/csv.error.js';
-import {handlerCases} from '../test-handler.mock.js';
+import {handlerCases} from '../../util/test-handler.mock.js';
 import {tableAlterHandler} from './table-alter.handler.js';
 
 describe(tableAlterHandler.name, () => {
@@ -21,16 +21,20 @@ describe(tableAlterHandler.name, () => {
             expect: {
                 files: {
                     before: {
-                        'users.csv': [
-                            '"id","name","email"',
-                            '"2","example","example@example.com"',
-                        ],
+                        main: {
+                            'users.csv': [
+                                '"id","name","email"',
+                                '"2","example","example@example.com"',
+                            ],
+                        },
                     },
                     after: {
-                        'users.csv': [
-                            '"id","name","email","new_column","new_column_again"',
-                            '"2","example","example@example.com","hi",""',
-                        ],
+                        main: {
+                            'users.csv': [
+                                '"id","name","email","new_column","new_column_again"',
+                                '"2","example","example@example.com","hi",""',
+                            ],
+                        },
                     },
                 },
                 output: [
@@ -71,16 +75,20 @@ describe(tableAlterHandler.name, () => {
             expect: {
                 files: {
                     before: {
-                        'users.csv': [
-                            '"id","name","email"',
-                            '"2","example","example@example.com"',
-                        ],
+                        main: {
+                            'users.csv': [
+                                '"id","name","email"',
+                                '"2","example","example@example.com"',
+                            ],
+                        },
                     },
                     after: {
-                        'users.csv': [
-                            '"id","human_name","email"',
-                            '"2","example","example@example.com"',
-                        ],
+                        main: {
+                            'users.csv': [
+                                '"id","human_name","email"',
+                                '"2","example","example@example.com"',
+                            ],
+                        },
                     },
                 },
                 output: [
@@ -122,16 +130,20 @@ describe(tableAlterHandler.name, () => {
             expect: {
                 files: {
                     before: {
-                        'users.csv': [
-                            '"id","name","email"',
-                            '"2","example","example@example.com"',
-                        ],
+                        main: {
+                            'users.csv': [
+                                '"id","name","email"',
+                                '"2","example","example@example.com"',
+                            ],
+                        },
                     },
                     after: {
-                        'users.csv': [
-                            '"id","email"',
-                            '"2","example@example.com"',
-                        ],
+                        main: {
+                            'users.csv': [
+                                '"id","email"',
+                                '"2","example@example.com"',
+                            ],
+                        },
                     },
                 },
                 output: [
@@ -173,16 +185,20 @@ describe(tableAlterHandler.name, () => {
             expect: {
                 files: {
                     before: {
-                        'users.csv': [
-                            '"id","name","email"',
-                            '"2","example","example@example.com"',
-                        ],
+                        main: {
+                            'users.csv': [
+                                '"id","name","email"',
+                                '"2","example","example@example.com"',
+                            ],
+                        },
                     },
                     after: {
-                        'users2.csv': [
-                            '"id","name","email"',
-                            '"2","example","example@example.com"',
-                        ],
+                        main: {
+                            'users2.csv': [
+                                '"id","name","email"',
+                                '"2","example","example@example.com"',
+                            ],
+                        },
                     },
                 },
                 output: [

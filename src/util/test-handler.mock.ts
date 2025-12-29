@@ -1,6 +1,5 @@
-/* eslint-disable sonarjs/no-commented-code */
 import {check, type ErrorMatchOptions} from '@augment-vir/assert';
-import {addSuffix, mapObject, mapObjectValues} from '@augment-vir/common';
+import {addSuffix, log, mapObject, mapObjectValues} from '@augment-vir/common';
 import {readAllDirContents, writeDirContents} from '@augment-vir/node';
 import {
     itCasesWithContext,
@@ -11,9 +10,9 @@ import {mkdir, rm} from 'node:fs/promises';
 import {type Sql} from 'sqlite-ast';
 import {type RequireExactlyOne} from 'type-fest';
 import {csvExtension} from '../csv/csv-file.js';
+import {type AstHandlerResult} from '../engine/define-ast-handler.js';
+import {executeSql} from '../engine/engine.js';
 import {createTestDirPath} from '../file-paths.mock.js';
-import {type AstHandlerResult} from './define-ast-handler.js';
-import {executeSql} from './engine.js';
 
 export type AstHandlerTestCase = {
     it: string;
@@ -45,14 +44,10 @@ export function handlerCases(testCases: ReadonlyArray<Readonly<AstHandlerTestCas
         testContext: Readonly<UniversalTestContext>,
         testConfig: Readonly<Omit<AstHandlerTestCase, 'it' | 'expect'>>,
     ): Promise<AstHandlerTestCase['expect']> {
-        // eslint-disable-next-line no-useless-catch
         try {
             const testDirPath = createTestDirPath(testContext);
             await rm(testDirPath, {
                 force: true,
-                recursive: true,
-            });
-            await mkdir(testDirPath, {
                 recursive: true,
             });
 
@@ -71,6 +66,8 @@ export function handlerCases(testCases: ReadonlyArray<Readonly<AstHandlerTestCas
                     csvDirPath: testDirPath,
                 });
             }
+
+            await mkdir(testDirPath, {recursive: true});
 
             const dirContentsBefore = splitFileContents(
                 await readAllDirContents(testDirPath, {
@@ -96,9 +93,8 @@ export function handlerCases(testCases: ReadonlyArray<Readonly<AstHandlerTestCas
                     after: dirContentsAfter,
                 },
             };
-            // eslint-disable-next-line sonarjs/no-useless-catch
         } catch (error) {
-            // log.error(error);
+            log.error(error);
             throw error;
         }
     }

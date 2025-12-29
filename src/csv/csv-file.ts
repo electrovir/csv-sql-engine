@@ -1,5 +1,5 @@
+import {assertWrap, check} from '@augment-vir/assert';
 import {addSuffix, awaitedForEach, removeSuffix} from '@augment-vir/common';
-import {existsSync} from 'node:fs';
 import {appendFile, mkdir, readFile, writeFile} from 'node:fs/promises';
 import {dirname, join} from 'node:path';
 import {type RequireExactlyOne} from 'type-fest';
@@ -40,6 +40,7 @@ export async function appendCsvRows(
  * @category CSV
  */
 export async function appendCsvRow(row: ReadonlyArray<string>, csvFilePath: string) {
+    await mkdir(dirname(csvFilePath), {recursive: true});
     await appendFile(csvFilePath, convertRowToCsv(row) + '\n');
 }
 
@@ -58,13 +59,22 @@ export function nameCsvTableFile({
     tableFilePath: string;
     sanitizedTableName: string;
 } {
-    const sanitizedTableName = removeSuffix({value: tableName, suffix: csvExtension}).replaceAll(
-        /[./\\]/g,
-        '',
+    const tableNameSplit = tableName.split('.').filter(check.isTruthy);
+    const databaseName: string = assertWrap.isTruthy(
+        (tableNameSplit.length > 1 ? tableNameSplit[0] || '' : 'main').replaceAll(/[./\\]/g, ''),
+        'No database name found.',
     );
+    const sanitizedTableName: string = assertWrap.isTruthy(
+        removeSuffix({
+            value: tableNameSplit.length > 1 ? tableNameSplit[1] || '' : tableName,
+            suffix: csvExtension,
+        }).replaceAll(/[./\\]/g, ''),
+        'No table name found.',
+    );
+
     const newCsvFileName = addSuffix({value: sanitizedTableName, suffix: csvExtension});
     return {
-        tableFilePath: join(csvDirPath, newCsvFileName),
+        tableFilePath: join(csvDirPath, databaseName, newCsvFileName),
         sanitizedTableName,
     };
 }
@@ -89,12 +99,9 @@ export async function writeCsvFile(
     filePath: string,
     contents: ReadonlyArray<ReadonlyArray<string>>,
 ): Promise<void> {
-    if (!existsSync(filePath)) {
-        await mkdir(dirname(filePath), {
-            recursive: true,
-        });
-    }
     const fileContents = convertRowsToCsv(contents);
+
+    await mkdir(dirname(filePath), {recursive: true});
 
     await writeFile(filePath, fileContents);
 }

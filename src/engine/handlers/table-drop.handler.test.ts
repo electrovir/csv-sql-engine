@@ -1,7 +1,7 @@
 import {describe} from '@augment-vir/test';
 import {sql} from 'sqlite-ast';
 import {CsvTableDoesNotExistError} from '../../errors/csv.error.js';
-import {handlerCases} from '../test-handler.mock.js';
+import {handlerCases} from '../../util/test-handler.mock.js';
 import {tableDropHandler} from './table-drop.handler.js';
 
 describe(tableDropHandler.name, () => {
@@ -19,9 +19,11 @@ describe(tableDropHandler.name, () => {
             expect: {
                 files: {
                     before: {
-                        'users.csv': [
-                            '"id","name","email"',
-                        ],
+                        main: {
+                            'users.csv': [
+                                '"id","name","email"',
+                            ],
+                        },
                     },
                     after: {},
                 },

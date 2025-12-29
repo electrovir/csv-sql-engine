@@ -13,23 +13,23 @@ describe(nameCsvTableFile.name, () => {
             it: 'sanitizes a table name',
             input: {
                 csvDirPath: join(testFilesDirPath, 'fake-test'),
-                tableName: 'bad.table/name',
+                tableName: 'bad.table/Name',
             },
             expect: {
                 // cspell:word badtablename
-                sanitizedTableName: 'badtablename',
-                tableFilePath: join(testFilesDirPath, 'fake-test', 'badtablename.csv'),
+                sanitizedTableName: 'tableName',
+                tableFilePath: join(testFilesDirPath, 'fake-test', 'bad', 'tableName.csv'),
             },
         },
         {
-            it: 'removes .csv',
+            it: 'freaks out on .csv',
             input: {
                 csvDirPath: join(testFilesDirPath, 'fake-test'),
                 tableName: 'name.csv',
             },
             expect: {
-                sanitizedTableName: 'name',
-                tableFilePath: join(testFilesDirPath, 'fake-test', 'name.csv'),
+                sanitizedTableName: 'csv',
+                tableFilePath: join(testFilesDirPath, 'fake-test', 'name', 'csv.csv'),
             },
         },
     ]);
